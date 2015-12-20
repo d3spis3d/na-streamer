@@ -2,6 +2,7 @@ import dir from 'node-dir';
 import watch from 'watch';
 import path from 'path';
 import commandLineArgs from 'command-line-args';
+import uuid from 'node-uuid';
 
 const cli = commandLineArgs([
     {
@@ -13,12 +14,24 @@ const cli = commandLineArgs([
 const options = cli.parse();
 
 const hostedFiles = {};
+const filesById = {};
+
+function createTrackData(songFile) {
+    const [number, song] = songFile.split('-');
+    const [title, ] = song.split('.');
+    const id = uuid.v1();
+    return {
+        number, title, id
+    };
+}
 
 function processFile(file) {
     const [artist, album, songFile] = path.relative(options.dir, file).split(path.sep);
     hostedFiles[artist] = hostedFiles[artist] || {};
     hostedFiles[artist][album] = hostedFiles[artist][album] || [];
-    hostedFiles[artist][album].push(songFile);
+    const track = createTrackData(songFile);
+    hostedFiles[artist][album].push(track);
+    filesById[track.id] = file;
 }
 
 dir.files(options.dir, function(err, files) {
@@ -33,6 +46,7 @@ dir.files(options.dir, function(err, files) {
         });
     }
     console.log(hostedFiles);
+    console.log(filesById);
 });
 
 watch.createMonitor(options.dir, function(monitor) {
