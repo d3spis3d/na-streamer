@@ -12,12 +12,13 @@ const cli = commandLineArgs([
 ]);
 const options = cli.parse();
 
+const hostedFiles = {};
+
 function processFile(file) {
-    console.log('file:', file);
     const [artist, album, songFile] = path.relative(options.dir, file).split(path.sep);
-    console.log('artist:', artist);
-    console.log('album:', album);
-    console.log('song file:', songFile);
+    hostedFiles[artist] = hostedFiles[artist] || {};
+    hostedFiles[artist][album] = hostedFiles[artist][album] || [];
+    hostedFiles[artist][album].push(songFile);
 }
 
 dir.files(options.dir, function(err, files) {
@@ -31,14 +32,15 @@ dir.files(options.dir, function(err, files) {
             processFile(file);
         });
     }
+    console.log(hostedFiles);
 });
 
 watch.createMonitor(options.dir, function(monitor) {
     monitor.on('created', function(file) {
-        processFile(file);
+        console.log('adding a new file:', file);
     });
 
     monitor.on('removed', function(file) {
-        processFile(file);
+        console.log('removing file:', file);
     });
 });
