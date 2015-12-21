@@ -1,6 +1,8 @@
+import path from 'path';
+import fs from 'fs';
+
 import dir from 'node-dir';
 import watch from 'watch';
-import path from 'path';
 import commandLineArgs from 'command-line-args';
 import uuid from 'node-uuid';
 
@@ -34,7 +36,7 @@ function processFile(file) {
     filesById[track.id] = file;
 }
 
-dir.files(options.dir, function(err, files) {
+dir.files(options.dir, (err, files) => {
     if (err) {
         console.log(err);
         return;
@@ -45,16 +47,18 @@ dir.files(options.dir, function(err, files) {
             processFile(file);
         });
     }
-    console.log(hostedFiles);
-    console.log(filesById);
 });
 
-watch.createMonitor(options.dir, function(monitor) {
-    monitor.on('created', function(file) {
-        console.log('adding a new file:', file);
+watch.createMonitor(options.dir, (monitor) => {
+    monitor.on('created', (file) => {
+        fs.lstat(file, (err, stat) => {
+            if (stat.isFile()) {
+                processFile(file);
+            }
+        });
     });
 
-    monitor.on('removed', function(file) {
+    monitor.on('removed', (file) => {
         console.log('removing file:', file);
     });
 });
