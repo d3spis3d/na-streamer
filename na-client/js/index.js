@@ -5,6 +5,7 @@ import dir from 'node-dir';
 import watch from 'watch';
 import commandLineArgs from 'command-line-args';
 import uuid from 'node-uuid';
+import {BinaryClient} from 'binaryjs';
 
 const cli = commandLineArgs([
     {
@@ -17,6 +18,27 @@ const options = cli.parse();
 
 const hostedFiles = {};
 const filesById = {};
+
+function createStreamToServer(stream) {
+    return function(hostedFileData) {
+        stream.write(hostedFileData);
+    };
+}
+
+const client = BinaryClient('ws://localhost:9000');
+let sendFileData;
+
+client.on('open', function() {
+    console.log('opened connection');
+    const stream = client.createStream();
+    sendFileData = createStreamToServer(stream);
+});
+client.on('close', function() {
+    console.log('connection closed');
+});
+client.on('error', function(err) {
+    console.log('error: ', err);
+});
 
 function createTrackData(songFile) {
     const [number, song] = songFile.split('-');
@@ -46,6 +68,7 @@ dir.files(options.dir, (err, files) => {
         files.forEach((file) => {
             processFile(file);
         });
+        sendFileData(hostedFiles);
     }
 });
 
