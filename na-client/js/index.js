@@ -16,7 +16,6 @@ const cli = commandLineArgs([
 ]);
 const options = cli.parse();
 
-const hostedFiles = {};
 const filesById = {};
 
 function createStreamToServer(stream) {
@@ -49,13 +48,36 @@ function createTrackData(songFile) {
     };
 }
 
-function processFile(file) {
+function extractTrack(file) {
     const [artist, album, songFile] = path.relative(options.dir, file).split(path.sep);
-    hostedFiles[artist] = hostedFiles[artist] || {};
-    hostedFiles[artist][album] = hostedFiles[artist][album] || [];
     const track = createTrackData(songFile);
-    hostedFiles[artist][album].push(track);
-    filesById[track.id] = file;
+    return {
+        artist,
+        album,
+        file,
+        ...track
+    };
+}
+
+function updateTrackMap(map, track) {
+    map[track.id] = track.file;
+    return map;
+}
+
+function buildFileInfoForBackend(map, track) {
+    map[track.artist] = map[track.artist] || {};
+    map[track.artist][track.album] = map[track.artist][track.album] || {};
+    map[track.artist][track.album][track.number] = {id: track.id, title: track.title};
+    return map;
+}
+
+function processFiles(files) {
+    const hostedFiles = {};
+    const tracks = files.map(extractTrack);
+
+    tracks.reduce(updateTrackMap, filesById);
+    tracks.reduce(buildFileInfoForBackend, hostedFiles);
+    sendFileData(hostedFiles);
 }
 
 dir.files(options.dir, (err, files) => {
@@ -65,10 +87,7 @@ dir.files(options.dir, (err, files) => {
     }
 
     if (files) {
-        files.forEach((file) => {
-            processFile(file);
-        });
-        sendFileData(hostedFiles);
+        processFiles(files);
     }
 });
 
@@ -76,7 +95,7 @@ watch.createMonitor(options.dir, (monitor) => {
     monitor.on('created', (file) => {
         fs.lstat(file, (err, stat) => {
             if (stat.isFile()) {
-                processFile(file);
+                processFiles([file]);
             }
         });
     });
