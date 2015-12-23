@@ -17,15 +17,14 @@ const cli = commandLineArgs([
 const options = cli.parse();
 
 const filesById = {};
+let sendFileData;
 
 function createStreamToServer(stream) {
     return function(hostedFileData) {
         stream.write(hostedFileData);
     };
 }
-
 const client = BinaryClient('ws://localhost:9000');
-let sendFileData;
 
 client.on('open', function() {
     console.log('opened connection');
@@ -50,18 +49,15 @@ function createTrackData(songFile) {
 
 function extractTrack(file) {
     const [artist, album, songFile] = path.relative(options.dir, file).split(path.sep);
-    const track = createTrackData(songFile);
+    const {number, title, id} = createTrackData(songFile);
     return {
         artist,
         album,
         file,
-        ...track
+        number,
+        title,
+        id
     };
-}
-
-function updateTrackMap(map, track) {
-    map[track.id] = track.file;
-    return map;
 }
 
 function buildFileInfoForBackend(map, track) {
@@ -71,14 +67,16 @@ function buildFileInfoForBackend(map, track) {
     return map;
 }
 
-function processFiles(files) {
-    const hostedFiles = {};
-    const tracks = files.map(extractTrack);
-
-    tracks.reduce(updateTrackMap, filesById);
-    tracks.reduce(buildFileInfoForBackend, hostedFiles);
-    sendFileData(hostedFiles);
+function reduceAndMemoize(memo, memoKey, memoValue) {
+    return function(array, reduceFunction, initial) {
+        return array.reduce(function(previous, current) {
+            memo[current[memoKey]] = current[memoValue];
+            return reduceFunction(previous, current);
+        });
+    };
 }
+
+const processFile = reduceAndMemoize(filesById, 'id', 'file');
 
 dir.files(options.dir, (err, files) => {
     if (err) {
@@ -87,7 +85,8 @@ dir.files(options.dir, (err, files) => {
     }
 
     if (files) {
-        processFiles(files);
+        const hostedFiles = processFiles(files, buildFileInfoForBackend, {});
+        sendFileData(hostedFiles);
     }
 });
 
@@ -95,7 +94,8 @@ watch.createMonitor(options.dir, (monitor) => {
     monitor.on('created', (file) => {
         fs.lstat(file, (err, stat) => {
             if (stat.isFile()) {
-                processFiles([file]);
+                const hostedFiles = processFiles(files, buildFileInfoForBackend, {});
+                sendFileData(hostedFiles);
             }
         });
     });
