@@ -72,11 +72,11 @@ function reduceAndMemoize(memo, memoKey, memoValue) {
         return array.reduce(function(previous, current) {
             memo[current[memoKey]] = current[memoValue];
             return reduceFunction(previous, current);
-        });
+        }, initial);
     };
 }
 
-const processFile = reduceAndMemoize(filesById, 'id', 'file');
+const processTracks = reduceAndMemoize(filesById, 'id', 'file');
 
 dir.files(options.dir, (err, files) => {
     if (err) {
@@ -85,8 +85,9 @@ dir.files(options.dir, (err, files) => {
     }
 
     if (files) {
-        const hostedFiles = processFiles(files, buildFileInfoForBackend, {});
-        sendFileData(hostedFiles);
+        const tracks = files.map(extractTrack);
+        const hostedTracks = processTracks(tracks, buildFileInfoForBackend, {});
+        sendFileData(hostedTracks);
     }
 });
 
@@ -94,8 +95,9 @@ watch.createMonitor(options.dir, (monitor) => {
     monitor.on('created', (file) => {
         fs.lstat(file, (err, stat) => {
             if (stat.isFile()) {
-                const hostedFiles = processFiles(files, buildFileInfoForBackend, {});
-                sendFileData(hostedFiles);
+                const tracks = [file].map(extractTrack);
+                const hostedTracks = processTracks(tracks, buildFileInfoForBackend, {});
+                sendFileData(hostedTracks);
             }
         });
     });
