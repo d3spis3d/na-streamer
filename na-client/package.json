@@ -28,6 +28,7 @@
     "express": "^4.13.3",
     "node-dir": "^0.1.11",
     "node-uuid": "^1.4.7",
+    "rx": "^4.0.7",
     "watch": "^0.16.0"
   },
   "devDependencies": {

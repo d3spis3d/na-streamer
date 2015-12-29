@@ -4,6 +4,7 @@ import fs from 'fs';
 import dir from 'node-dir';
 import watch from 'watch';
 import uuid from 'node-uuid';
+import Rx from 'rx';
 
 import {reduceAndMemoize} from './helper';
 
@@ -24,15 +25,20 @@ export function setupFilesProcessing(filesStore, sendFileData, musicDir) {
     });
 
     watch.createMonitor(musicDir, (monitor) => {
-        monitor.on('created', (file) => {
-            fs.lstat(file, (err, stat) => {
-                if (stat.isFile()) {
-                    const tracks = [file].map(extractTrack(musicDir));
-                    const hostedTracks = processTracks(tracks, buildFileInfoForBackend, {});
-                    sendFileData(hostedTracks);
+        Rx.Observable.fromEvent(monitor, 'created')
+            .filter((file) => {
+                return fs.lstatSync(file).isFile();
+            })
+            .bufferWithTime(30000)
+            .map((files) => {
+                const tracks = files.map(extractTrack(musicDir));
+                return processTracks(tracks, buildFileInfoForBackend, {});
+            })
+            .subscribe((tracks) => {
+                if (Object.keys(tracks).length > 0) {
+                    sendFileData(tracks);
                 }
             });
-        });
 
         monitor.on('removed', (file) => {
             console.log('removing file:', file);
