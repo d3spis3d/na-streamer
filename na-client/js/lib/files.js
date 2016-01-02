@@ -64,7 +64,7 @@ function extractTrack(musicDir) {
 function createTrackData(songFile) {
     const [number, song] = songFile.split('-');
     const [title, ] = song.split('.');
-    const id = uuid.v1();
+    const id = uuid.v4();
     return {
         number, title, id
     };
