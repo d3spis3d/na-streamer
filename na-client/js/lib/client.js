@@ -9,6 +9,10 @@ export function startClient(filesStore, musicDir) {
         const stream = client.createStream();
         const sendFileData = createStreamToServer(stream);
         setupFilesProcessing(filesStore, sendFileData, musicDir);
+
+        stream.on('data', function(data) {
+            console.log(data);
+        });
     });
     client.on('close', function() {
         console.log('connection closed');

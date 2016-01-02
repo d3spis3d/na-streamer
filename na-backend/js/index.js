@@ -1,9 +1,26 @@
 import {BinaryServer} from 'binaryjs';
 import uuid from 'node-uuid';
+import express from 'express';
 
 const filesByClient = {};
 const tracks = {};
 const clients = {};
+
+const app = express();
+
+app.get('/:uuid', function(req, res) {
+    const clientId = filesByClient[req.params.uuid];
+    const stream = clients[clientId];
+    stream.write(req.params.uuid);
+    res.sendStatus(200);
+});
+
+const appServer = app.listen(3000, function () {
+  const host = appServer.address().address;
+  const port = appServer.address().port;
+
+  console.log('Example app listening at http://%s:%s', host, port);
+});
 
 const server = BinaryServer({port: 9000});
 
@@ -23,7 +40,7 @@ server.on('connection', function(client) {
                     }
                 }
             }
-
+            console.log(filesByClient);
         });
     });
 });
