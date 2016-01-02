@@ -25,7 +25,8 @@
   "dependencies": {
     "binaryjs": "^0.2.1",
     "express": "^4.13.3",
-    "node-uuid": "^1.4.7"
+    "node-uuid": "^1.4.7",
+    "rx": "^4.0.7"
   },
   "devDependencies": {
     "babel-cli": "^6.3.17",

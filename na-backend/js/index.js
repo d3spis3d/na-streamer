@@ -1,6 +1,7 @@
 import {BinaryServer} from 'binaryjs';
 import uuid from 'node-uuid';
 import express from 'express';
+import Rx from 'rx';
 
 const filesByClient = {};
 const tracks = {};
@@ -28,7 +29,11 @@ server.on('connection', function(client) {
     const clientId = uuid.v4();
     client.on('stream', function(stream) {
         clients[clientId] = stream;
-        stream.on('data', function(data) {
+
+        const streamedData = Rx.Observable.fromEvent(stream, 'data');
+
+        const trackData = streamedData.filter(data => !Buffer.isBuffer(data));
+        trackData.subscribe(data => {
             for (let artist in data) {
                 tracks[artist] = tracks[artist] || {};
                 for (let albumName in data[artist]) {
@@ -41,6 +46,11 @@ server.on('connection', function(client) {
                 }
             }
             console.log(filesByClient);
+        });
+
+        const binaryData = streamedData.filter(data => Buffer.isBuffer(data));
+        binaryData.subscribe(data => {
+            console.log('received binary data');
         });
     });
 });
