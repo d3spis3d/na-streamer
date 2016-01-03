@@ -3,6 +3,8 @@ import fs from 'fs';
 import {BinaryClient} from 'binaryjs';
 import {setupFilesProcessing} from './files';
 import Rx from 'rx';
+import probe from 'node-ffprobe';
+import Throttle from 'throttle';
 
 export function startClient(filesStore, musicDir) {
     const client = BinaryClient('ws://localhost:9000');
@@ -15,12 +17,27 @@ export function startClient(filesStore, musicDir) {
 
         const streamedData = Rx.Observable.fromEvent(stream, 'data');
 
-        const trackRequests = streamedData.filter(data => typeof data === 'string' ||
-                                data instanceof String);
-        trackRequests.subscribe(data => {
-            console.log(data);
-            const binaryData = fs.readFileSync(filesStore[data]);
-            stream.write(binaryData);
+        const trackRequests = streamedData.filter(data => typeof data === 'string' || data instanceof String);
+        trackRequests.subscribe(trackId => {
+            console.log(trackId);
+            const track = filesStore[trackId];
+            probe(track, (err, results) => {
+                const trackStream = fs.createReadStream(track);
+                const throttledStream = new Throttle((results.format.bit_rate / 10) * 1.4);
+                trackStream.pipe(throttledStream);
+
+                const throttledData = Rx.Observable.fromEvent(throttledStream, 'data')
+                .subscribe(data => {
+                    sendFileData(data);
+                });
+
+                const throttleEnd = Rx.Observable.fromEvent(throttledStream, 'end')
+                .subscribe(() => {
+                    throttledData.dispose();
+                    throttleEnd.dispose();
+                    sendFileData(trackId);
+                });
+            });
         });
     });
     client.on('close', function() {
