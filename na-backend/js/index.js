@@ -48,7 +48,7 @@ server.on('connection', function(client) {
             console.log(filesByClient);
         });
 
-        const trackData = streamedData.filter(data => !Buffer.isBuffer(data) && (typeof data === 'string' || data instanceof String));
+        const trackEnd = streamedData.filter(data => !Buffer.isBuffer(data) && (typeof data === 'string' || data instanceof String));
         trackData.subscribe(data => {
             console.log('track finished', data);
         });
