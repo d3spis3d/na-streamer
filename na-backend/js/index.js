@@ -3,15 +3,16 @@ import uuid from 'node-uuid';
 import express from 'express';
 import Rx from 'rx';
 
-const filesByClient = {};
+const filesByStreamer = {};
 const tracks = {};
-const clients = {};
+const clients = [];
+const streamers = {};
 
 const app = express();
 
 app.get('/:uuid', function(req, res) {
-    const clientId = filesByClient[req.params.uuid];
-    const stream = clients[clientId];
+    const streamerId = filesByStreamer[req.params.uuid];
+    const stream = streamers[streamerId];
     stream.write(req.params.uuid);
     res.sendStatus(200);
 });
@@ -23,12 +24,12 @@ const appServer = app.listen(3000, function () {
   console.log('Example app listening at http://%s:%s', host, port);
 });
 
-const server = BinaryServer({port: 9000});
+const streamerServer = BinaryServer({port: 9000});
 
-server.on('connection', function(client) {
-    const clientId = uuid.v4();
-    client.on('stream', function(stream) {
-        clients[clientId] = stream;
+streamerServer.on('connection', function(streamer) {
+    const streamerId = uuid.v4();
+    streamer.on('stream', function(stream) {
+        streamers[streamerId] = stream;
 
         const streamedData = Rx.Observable.fromEvent(stream, 'data');
 
@@ -40,12 +41,12 @@ server.on('connection', function(client) {
                     tracks[artist][albumName] = tracks[artist][albumName] || {};
                     const album = data[artist][albumName];
                     for (let track in album) {
-                        filesByClient[album[track].id] = clientId;
+                        filesByStreamer[album[track].id] = streamerId;
                         tracks[artist][albumName][track] = album[track];
                     }
                 }
             }
-            console.log(filesByClient);
+            console.log(filesByStreamer);
         });
 
         const trackEnd = streamedData.filter(data => !Buffer.isBuffer(data) && (typeof data === 'string' || data instanceof String));
@@ -56,6 +57,15 @@ server.on('connection', function(client) {
         const binaryData = streamedData.filter(data => Buffer.isBuffer(data));
         binaryData.subscribe(data => {
             console.log('received binary data');
+            clients.forEach(client => {
+                client.stream.write(data);
+            });
         });
     });
+});
+
+const frontendServer = BinaryServer({server: app, path: '/api/v1/binary-data'});
+frontendServer.on('connection', function(client) {
+    const stream = client.createStream();
+    clients.push({stream: stream});
 });
