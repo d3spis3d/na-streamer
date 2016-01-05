@@ -23,7 +23,10 @@ export function startClient(filesStore, musicDir) {
             const track = filesStore[trackId];
             probe(track, (err, results) => {
                 const trackStream = fs.createReadStream(track);
-                const throttledStream = new Throttle((results.format.bit_rate / 10) * 1.4);
+                const bps = (results.format.bit_rate / 10) * 1.4;
+                const chunkSize = Math.ceil(bps / 3);
+                console.log(chunkSize);
+                const throttledStream = new Throttle({bps, chunkSize});
                 trackStream.pipe(throttledStream);
 
                 const throttledData = Rx.Observable.fromEvent(throttledStream, 'data')
