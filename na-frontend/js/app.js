@@ -1,3 +1,5 @@
+import {BinaryClient} from 'binaryjs-client';
+
 window.addEventListener('load', () => {
     const client = new BinaryClient(`ws://localhost:9001`);
     const audioCtx = new window.AudioContext();
