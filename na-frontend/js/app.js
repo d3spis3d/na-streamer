@@ -7,15 +7,16 @@ window.addEventListener('load', () => {
     client.on('open', function() {
         console.log('client opened');
         const stream = client.createStream();
+        let scheduleNextBuffer = 0;
 
         stream.on('data', (data) => {
             console.log('got data');
             audioCtx.decodeAudioData(data, buffer => {
-                console.log(buffer.length);
                 const source = audioCtx.createBufferSource();
                 source.buffer = buffer;
                 source.connect(audioCtx.destination);
-                source.start();
+                source.start(scheduleNextBuffer || audioCtx.currentTime);
+                scheduleNextBuffer = scheduleNextBuffer + buffer.duration + 0.010;
             });
         });
     });
