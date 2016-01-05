@@ -70,11 +70,4 @@ const appServer = app.listen(4000, function () {
             });
         });
     });
-
-  /*const frontendServer = BinaryServer({port: 9001});
-  frontendServer.on('connection', function(client) {
-      client.on('stream', function(stream) {
-          clients.push({stream: stream});
-      });
-  });*/
 });
