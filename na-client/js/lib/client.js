@@ -51,7 +51,7 @@ export function startClient(filesStore, musicDir) {
     });
 }
 
-function createStreamToServer(stream) {
+export function createStreamToServer(stream) {
     return function(hostedFileData) {
         stream.write(hostedFileData);
     };
