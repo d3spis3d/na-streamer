@@ -46,7 +46,7 @@ export function setupFilesProcessing(filesStore, sendFileData, musicDir) {
     });
 }
 
-function extractTrack(musicDir) {
+export function extractTrack(musicDir) {
     return function(file) {
         const [artist, album, songFile] = path.relative(musicDir, file).split(path.sep);
         const {number, title, id} = createTrackData(songFile);
@@ -61,7 +61,7 @@ function extractTrack(musicDir) {
     }
 }
 
-function createTrackData(songFile) {
+export function createTrackData(songFile) {
     const [number, song] = songFile.split('-');
     const [title, ] = song.split('.');
     const id = uuid.v4();
@@ -70,7 +70,7 @@ function createTrackData(songFile) {
     };
 }
 
-function buildFileInfoForBackend(map, track) {
+export function buildFileInfoForBackend(map, track) {
     map[track.artist] = map[track.artist] || {};
     map[track.artist][track.album] = map[track.artist][track.album] || {};
     map[track.artist][track.album][track.number] = {id: track.id, title: track.title};
