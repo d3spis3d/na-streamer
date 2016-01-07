@@ -4,10 +4,11 @@ import Rx from 'rx';
 
 export function setupStreamServer(streamers, tracks, filesByStreamer, clients) {
     const streamerServer = BinaryServer({port: 9000});
+    const writeToAllClients = setClientList(clients);
 
     streamerServer.on('connection', function(streamer) {
         const streamerId = uuid.v4();
-        const updateTrackListing = setTrackListingMap(tracks, filesByStreamer);
+        const updateTrackListing = setTrackListingMap(tracks, filesByStreamer, streamerId);
 
         streamer.on('stream', function(stream) {
             streamers[streamerId] = stream;
@@ -32,14 +33,16 @@ export function setupStreamServer(streamers, tracks, filesByStreamer, clients) {
     return streamerSever;
 }
 
-export function writeToAllClients(data) {
-    console.log('received binary data');
-    clients.forEach(client => {
-        client.res.write(data);
-    });
+export function setClientList(clients) {
+    return function(data) {
+        console.log('received binary data');
+        clients.forEach(client => {
+            client.res.write(data);
+        });
+    };
 }
 
-export function setTrackListingMap() {
+export function setTrackListingMap(tracks, filesByStreamer, streamerId) {
     return function(data) {
         for (let artist in data) {
             tracks[artist] = tracks[artist] || {};
@@ -52,6 +55,6 @@ export function setTrackListingMap() {
                 }
             }
         }
-    }
-  console.log(filesByStreamer);
+        console.log(filesByStreamer);
+    };
 }
