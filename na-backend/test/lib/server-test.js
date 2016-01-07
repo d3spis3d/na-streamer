@@ -98,5 +98,73 @@ describe('Server function', function() {
             expect(tracks).to.eql(expectedTracks);
             expect(filesByStreamer).to.eql(expectedFilesByStreamer);
         });
+
+        it('should generate a function to update tracks and files by streamer id when tracks already exist', function() {
+            const tracks = {
+                'Artist': {
+                    'Album Zero': {
+                        '01': {
+                            title: 'Numero Uno',
+                            id: 'wwwwwwww-wwww-wwww-wwww-wwwwwwwwwwww'
+                        }
+                    }
+                }
+            };
+            const filesByStreamer = {
+                'wwwwwwww-wwww-wwww-wwww-wwwwwwwwwwww': 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+            };
+            const streamerId = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
+
+            const inputData = {
+                'Artist': {
+                    'Album1': {
+                        '01': {
+                            title: 'Track One',
+                            id: 'yyyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy'
+                        }
+                    },
+                    'Album2': {
+                        '01': {
+                            title: 'First Song',
+                            id: 'zzzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz'
+                        }
+                    }
+                }
+            };
+
+            const expectedTracks = {
+                'Artist': {
+                    'Album Zero': {
+                        '01': {
+                            title: 'Numero Uno',
+                            id: 'wwwwwwww-wwww-wwww-wwww-wwwwwwwwwwww'
+                        }
+                    },
+                    'Album1': {
+                        '01': {
+                            title: 'Track One',
+                            id: 'yyyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy'
+                        }
+                    },
+                    'Album2': {
+                        '01': {
+                            title: 'First Song',
+                            id: 'zzzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz'
+                        }
+                    }
+                }
+            };
+            const expectedFilesByStreamer = {
+                'wwwwwwww-wwww-wwww-wwww-wwwwwwwwwwww': 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+                'yyyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy': 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
+                'zzzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz': 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+            };
+
+            const updateTrackListing = setTrackListingMap(tracks, filesByStreamer, streamerId);
+
+            updateTrackListing(inputData);
+            expect(tracks).to.eql(expectedTracks);
+            expect(filesByStreamer).to.eql(expectedFilesByStreamer);
+        });
     });
 });
