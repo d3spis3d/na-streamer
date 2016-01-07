@@ -8,7 +8,7 @@
     "build": "babel js -d dist",
     "serve": "node dist/index.js",
     "test": "mocha",
-    "coverage": "node_modules/isparta/bin/isparta cover --include-all-sources --report text --report html node_modules/mocha/bin/_mocha"
+    "coverage": "node_modules/isparta/bin/isparta cover --include-all-sources --report lcovonly node_modules/mocha/bin/_mocha"
   },
   "repository": {
     "type": "git",

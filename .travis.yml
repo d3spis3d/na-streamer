@@ -16,10 +16,16 @@ notifications:
     on_success: change
     on_failure: always
 install:
+  - npm install
   - cd na-backend && npm install
   - cd ../na-client && npm install
 before_script:
   - cd ..
 script:
-  - cd na-backend && npm run test
-  - cd ../na-client && npm run test
+  - cd na-backend && npm run coverage
+  - cd ../na-client && npm run coverage
+after_success:
+  - cat coverage/lcov.info > ../lcov.info
+  - cd ../na-backend && cat coverage/lcov.info >> ../lcov.info
+  - cd ..
+  - npm run send-coverage

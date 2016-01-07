@@ -4,7 +4,7 @@
   "description": "Streaming audio with Node.js",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "send-coverage": "cat lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   },
   "repository": {
     "type": "git",
@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/d3spis3d/na-streamer/issues"
   },
-  "homepage": "https://github.com/d3spis3d/na-streamer#readme"
+  "homepage": "https://github.com/d3spis3d/na-streamer#readme",
+  "devDependencies": {
+    "coveralls": "^2.11.6"
+  }
 }
