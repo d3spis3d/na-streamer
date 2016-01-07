@@ -30,7 +30,7 @@ export function setupStreamServer(streamers, tracks, filesByStreamer, clients) {
         });
     });
 
-    return streamerSever;
+    return streamerServer;
 }
 
 export function setClientList(clients) {

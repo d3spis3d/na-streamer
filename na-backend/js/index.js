@@ -1,7 +1,7 @@
 import uuid from 'node-uuid';
 import express from 'express';
 
-import {startStreamServer} from './lib/server';
+import {setupStreamServer} from './lib/server';
 
 import {getSongByUUID} from './routes/song';
 import {getStream} from './routes/stream';
