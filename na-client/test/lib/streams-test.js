@@ -101,7 +101,7 @@ describe('Streams function', function() {
     describe('openStreamToServer', function() {
         it('should create a stream from the client and start file processing', function() {
             const filesStore = {};
-            const musicDir = ['home', 'test', 'music'].join(path.sep);
+            const musicDir = ['home', 'testing', 'music'].join(path.sep);
             const client = {
                 createStream: function() { }
             };
@@ -109,10 +109,10 @@ describe('Streams function', function() {
             const clientSpy = sinon.stub(client, 'createStream').returns(new EventEmitter());
             const filesSpy = sinon.stub(files, 'setupFilesProcessing');
 
-            openStreamToServer(filesStore, musicDir, client);
+            const results = openStreamToServer(filesStore, musicDir, client);
 
             expect(clientSpy.called);
-            expect(clientSpy.calledWith(filesStore, sinon.match.func, musicDir));
+            expect(filesSpy.calledWith(filesStore, sinon.match.func, musicDir));
         });
     });
 });

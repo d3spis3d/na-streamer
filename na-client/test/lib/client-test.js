@@ -22,6 +22,7 @@ describe('Client functions', function() {
             client.emit('open');
 
             expect(openStreamSpy.calledWith(filesStore, musicDir, client));
+            streams.openStreamToServer.restore();
         });
     });
 });
