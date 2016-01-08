@@ -16,7 +16,7 @@ export function setupStreamServer(streamers, tracks, filesByStreamer, clients) {
 
             const trackListingData = streamedData
                 .filter(data => !Buffer.isBuffer(data) && !(typeof data === 'string' || data instanceof String));
-            trackListingData.subscribe(updateTrackListing(data));
+            trackListingData.subscribe(updateTrackListing);
 
             const trackEnd = streamedData
                 .filter(data => !Buffer.isBuffer(data) && (typeof data === 'string' || data instanceof String));
@@ -26,7 +26,7 @@ export function setupStreamServer(streamers, tracks, filesByStreamer, clients) {
 
             const binaryData = streamedData
                 .filter(data => Buffer.isBuffer(data));
-            binaryData.subscribe(writeToAllClients(data));
+            binaryData.subscribe(writeToAllClients);
         });
     });
 
