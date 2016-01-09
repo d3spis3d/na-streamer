@@ -5,6 +5,7 @@ import {setupStreamServer} from './lib/server';
 
 import {getSongByUUID} from './routes/song';
 import {getStream} from './routes/stream';
+import {getLibrary} from './routes/library';
 
 const filesByStreamer = {};
 const tracks = {};
@@ -16,6 +17,8 @@ const app = express();
 app.get(getSongByUUID.url, getSongByUUID.generateHandler(filesByStreamer, streamers));
 
 app.get(getStream.url, getStream.generateHandler(clients));
+
+app.get(getLibrary.url, getLibrary.generateHandler(tracks));
 
 const appServer = app.listen(4000, function () {
     const host = appServer.address().address;
