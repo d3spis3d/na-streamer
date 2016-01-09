@@ -22,7 +22,9 @@
     "spread": true,
     "superInFunctions": true,
     "templateStrings": true,
+    "jsx": true
   },
+  "plugins" : ["react"],
   "rules": {
       //Standard
       "accessor-pairs": 0,
@@ -134,7 +136,7 @@
       "no-undef-init": 0,
       "no-undef": 1,
       "no-undefined": 0,
-      "no-unused-vars": [2, {"vars": "local", "args": "after-used"}],
+      "no-unused-vars": [1, {"vars": "local", "args": "after-used"}],
       "no-use-before-define": 2,
       //Style
       "array-bracket-spacing": 0,
