@@ -11,18 +11,7 @@ import {reduceAndMemoize} from './helper';
 export function setupFilesProcessing(filesStore, sendFileData, musicDir) {
     const processTracks = reduceAndMemoize(filesStore, 'id', 'file');
 
-    dir.files(musicDir, (err, files) => {
-        if (err) {
-            console.log(err);
-            return;
-        }
-
-        if (files) {
-            const tracks = files.map(extractTrack(musicDir));
-            const hostedTracks = processTracks(tracks, buildFileInfoForBackend, {});
-            sendFileData(hostedTracks);
-        }
-    });
+    dir.files(musicDir, setupFilePathProcessor(sendFileData, processTracks, musicDir));
 
     watch.createMonitor(musicDir, (monitor) => {
         Rx.Observable.fromEvent(monitor, 'created')
@@ -44,6 +33,21 @@ export function setupFilesProcessing(filesStore, sendFileData, musicDir) {
             console.log('removing file:', file);
         });
     });
+}
+
+export function setupFilePathProcessor(sendFileData, processTracks, musicDir) {
+    return function(err, files) {
+        if (err) {
+            console.log(err);
+            return;
+        }
+
+        if (files) {
+            const tracks = files.map(extractTrack(musicDir));
+            const hostedTracks = processTracks(tracks, buildFileInfoForBackend, {});
+            sendFileData(hostedTracks);
+        }
+    };
 }
 
 export function extractTrack(musicDir) {

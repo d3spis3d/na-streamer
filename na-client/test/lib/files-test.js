@@ -1,6 +1,8 @@
-import {createTrackData, extractTrack, buildFileInfoForBackend} from '../../js/lib/files';
+import {createTrackData, extractTrack, buildFileInfoForBackend, setupFilePathProcessor} from '../../js/lib/files';
 import {expect} from 'chai';
 import path from 'path';
+import sinon from 'sinon';
+import uuid from 'node-uuid';
 
 describe('Files function', function() {
     describe('createTrackData', function() {
@@ -155,5 +157,65 @@ describe('Files function', function() {
             const results = buildFileInfoForBackend(mapInput, input);
             expect(results).to.eql(expectedResults);
         });
+    });
+
+    describe('setupFilePathProcessor', function() {
+        it('should return a function', function() {
+            const sendFileData = function() { };
+            const processTracks = function() { };
+            const musicDir = ['home', 'music'].join(path.sep);
+
+            const results = setupFilePathProcessor(sendFileData, processTracks);
+
+            expect(results).to.be.a('function');
+        });
+
+        it('should create processor that does not send data on err', function() {
+            const sendFileData = sinon.spy();
+            const processTracks = sinon.spy();
+            const musicDir = ['home', 'music'].join(path.sep);
+
+            const processFiles = setupFilePathProcessor(sendFileData, processTracks);
+
+            processFiles('Error', []);
+
+            expect(sendFileData.called).to.be.false;
+            expect(processTracks.called).to.be.false;
+        });
+
+        it('should create processor that processes files and sends data', function() {
+            const mockHostedTracks = {
+                'Artist': {
+                    'Album': {
+                        '01': {
+                            title: 'Song Title',
+                            id: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx'
+                        }
+                    }
+                }
+            };
+
+            const sendFileData = sinon.spy();
+            const processTracks = sinon.stub().returns(mockHostedTracks);
+            const musicDir = ['home', 'music'].join(path.sep);
+
+            const processFiles = setupFilePathProcessor(sendFileData, processTracks, musicDir);
+            const files = [['home', 'music', 'Artist', 'Album', '01-Song Title.mp3'].join(path.sep)];
+            const uuidSpy = sinon.spy(uuid, 'v4');
+
+            processFiles(null, files);
+
+            const expectedTracks = {
+                artist: 'Artist',
+                album: 'Album',
+                file: ['home', 'music', 'Artist', 'Album', '01-Song Title.mp3'].join(path.sep),
+                number: '01',
+                title: 'Song Title',
+                id: uuidSpy.returnValues[0]
+            }
+
+            expect(processTracks.calledWith(expectedTracks, sinon.match.func, {}));
+            expect(sendFileData.calledWith(mockHostedTracks));
+        })
     });
 });
