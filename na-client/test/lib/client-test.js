@@ -1,4 +1,4 @@
-import * as streams from '../../js/lib/streams';
+import * as openStreamToServer from '../../js/lib/streams/open-stream-to-server';
 import {startClient} from '../../js/lib/client';
 
 import {EventEmitter} from 'events';
@@ -15,14 +15,14 @@ describe('Client functions', function() {
             const filesStore = {};
             const musicDir = ['home', 'test', 'music'].join(path.sep);
             const clientSpy = sinon.stub(binaryjs, 'BinaryClient').returns(new EventEmitter());
-            const openStreamSpy = sinon.stub(streams, 'openStreamToServer');
+            const openStreamSpy = sinon.stub(openStreamToServer, 'default');
 
             const client = startClient(filesStore, musicDir);
 
             client.emit('open');
 
-            expect(openStreamSpy.calledWith(filesStore, musicDir, client));
-            streams.openStreamToServer.restore();
+            expect(openStreamSpy.calledWith(filesStore, musicDir, client)).to.be.true;
+            openStreamToServer.default.restore();
         });
     });
 });

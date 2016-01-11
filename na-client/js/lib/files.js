@@ -13,26 +13,7 @@ export function setupFilesProcessing(filesStore, sendFileData, musicDir) {
 
     dir.files(musicDir, setupFilePathProcessor(sendFileData, processTracks, musicDir));
 
-    watch.createMonitor(musicDir, (monitor) => {
-        Rx.Observable.fromEvent(monitor, 'created')
-            .filter((file) => {
-                return fs.lstatSync(file).isFile();
-            })
-            .bufferWithTime(30000)
-            .map((files) => {
-                const tracks = files.map(extractTrack(musicDir));
-                return processTracks(tracks, buildFileInfoForBackend, {});
-            })
-            .subscribe((tracks) => {
-                if (Object.keys(tracks).length > 0) {
-                    sendFileData(tracks);
-                }
-            });
-
-        monitor.on('removed', (file) => {
-            console.log('removing file:', file);
-        });
-    });
+    watch.createMonitor(musicDir, setupFileWatcher(sendFileData, processTracks, musicDir));
 }
 
 export function setupFilePathProcessor(sendFileData, processTracks, musicDir) {
@@ -47,6 +28,29 @@ export function setupFilePathProcessor(sendFileData, processTracks, musicDir) {
             const hostedTracks = processTracks(tracks, buildFileInfoForBackend, {});
             sendFileData(hostedTracks);
         }
+    };
+}
+
+export function setupFileWatcher(sendFileData, processTracks, musicDir) {
+    return function(monitor) {
+        Rx.Observable.fromEvent(monitor, 'created')
+            .filter((file) => {
+                return fs.lstatSync(file).isFile();
+            })
+            .bufferWithTime(10000)
+            .map((files) => {
+                const tracks = files.map(extractTrack(musicDir));
+                return processTracks(tracks, buildFileInfoForBackend, {});
+            })
+            .subscribe((tracks) => {
+                if (Object.keys(tracks).length > 0) {
+                    sendFileData(tracks);
+                }
+            });
+
+        monitor.on('removed', (file) => {
+            console.log('removing file:', file);
+        });
     };
 }
 

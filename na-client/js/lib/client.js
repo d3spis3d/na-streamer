@@ -1,13 +1,12 @@
 import {BinaryClient} from 'binaryjs';
 
-import * as streams from './streams';
-
+import openStreamToServer from './streams/open-stream-to-server';
 
 export function startClient(filesStore, musicDir) {
     const client = BinaryClient('ws://localhost:9000');
 
     client.on('open', function() {
-        streams.openStreamToServer(filesStore, musicDir, client);
+        openStreamToServer(filesStore, musicDir, client);
     });
     client.on('close', function() {
         console.log('connection closed');

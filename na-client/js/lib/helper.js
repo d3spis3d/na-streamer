@@ -6,3 +6,9 @@ export function reduceAndMemoize(memo, memoKey, memoValue) {
         }, initial);
     };
 }
+
+export function createWriteStream(stream) {
+    return function(hostedFileData) {
+        stream.write(hostedFileData);
+    };
+}
