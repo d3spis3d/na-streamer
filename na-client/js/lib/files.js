@@ -8,7 +8,7 @@ import Rx from 'rx';
 
 import {reduceAndMemoize} from './helper';
 
-export function setupFilesProcessing(filesStore, sendFileData, musicDir) {
+export default function(filesStore, sendFileData, musicDir) {
     const processTracks = reduceAndMemoize(filesStore, 'id', 'file');
 
     dir.files(musicDir, setupFilePathProcessor(sendFileData, processTracks, musicDir));

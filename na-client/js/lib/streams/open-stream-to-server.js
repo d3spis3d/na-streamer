@@ -2,7 +2,7 @@ import probe from 'node-ffprobe';
 import Rx from 'rx';
 
 import {createWriteStream} from '../helper';
-import {setupFilesProcessing} from '../files';
+import setupFilesProcessing from '../files';
 import createTrackResponse from './create-track-response';
 
 export default function(filesStore, musicDir, client) {

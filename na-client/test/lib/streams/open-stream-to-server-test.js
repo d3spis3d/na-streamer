@@ -5,8 +5,8 @@ import {expect} from 'chai';
 import sinon from 'sinon';
 
 import openStreamToServer from '../../../js/lib/streams/open-stream-to-server';
-import {createStreamToServer} from '../../../js/lib/helper';
-import * as files from '../../../js/lib/files';
+import * as helpers from '../../../js/lib/helper';
+import * as setupFilesProcessing from '../../../js/lib/files';
 
 describe('openStreamToServer', function() {
     it('should create a stream from the client and start file processing', function() {
@@ -16,15 +16,16 @@ describe('openStreamToServer', function() {
             createStream: function() { }
         };
 
-        const clientSpy = sinon.stub(client, 'createStream').returns(new EventEmitter());
-        const filesSpy = sinon.stub(files, 'setupFilesProcessing');
-        const streamToServerSpy = sinon.spy(createStreamToServer);
-
-        console.log('streamTo:', streamToServerSpy.called);
+        const mockStream = new EventEmitter();
+        const clientSpy = sinon.stub(client, 'createStream').returns(mockStream);
+        const filesSpy = sinon.stub(setupFilesProcessing, 'default');
+        const mockWriteStream = sinon.spy();
+        const writeSpy = sinon.stub(helpers, 'createWriteStream').returns(mockWriteStream);
 
         const results = openStreamToServer(filesStore, musicDir, client);
 
+        expect(writeSpy.calledWith(mockStream)).to.be.true;
         expect(clientSpy.called).to.be.true;
-        expect(filesSpy.calledWith(filesStore, sinon.match.func, musicDir)).to.be.true;
+        expect(filesSpy.calledWith(filesStore, mockWriteStream, musicDir)).to.be.true;
     });
 });
