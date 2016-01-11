@@ -6,7 +6,7 @@ import sinon from 'sinon';
 
 import openStreamToServer from '../../../js/lib/streams/open-stream-to-server';
 import * as helpers from '../../../js/lib/helper';
-import * as setupFilesProcessing from '../../../js/lib/files';
+import * as setupFilesProcessing from '../../../js/lib/files/setup-files-processing';
 
 describe('openStreamToServer', function() {
     it('should create a stream from the client and start file processing', function() {

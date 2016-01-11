@@ -6,7 +6,7 @@ import sinon from 'sinon';
 import createTrackResponse from '../../../js/lib/streams/create-track-response';
 import * as createTrackStream from '../../../js/lib/streams/create-track-stream';
 
-describe('CreateTrackResponse', function() {
+describe('createTrackResponse', function() {
     it('should return a function', function() {
         const filesStore = {};
         const sendFileData = function() { };
