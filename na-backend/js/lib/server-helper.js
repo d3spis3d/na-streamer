@@ -37,7 +37,7 @@ export function setupInitQueue(songQueue, filesByStreamer, streamers) {
             const fileNumber = Math.floor(Math.random() * filesCount);
             songQueue.push(files[fileNumber]);
         }
-        console.log(songQueue);
+
         const firstSong = songQueue.shift();
         const streamerId = filesByStreamer[firstSong];
         const stream = streamers[streamerId];

@@ -18,6 +18,7 @@ describe('setupServerConnectionHandler', function() {
     let uuidSpy;
     let handlerSpy;
     let streamSpy;
+    let nextSongInQueue;
 
     beforeEach(function() {
         tracks = {};
@@ -29,6 +30,7 @@ describe('setupServerConnectionHandler', function() {
         uuidSpy = sinon.spy(uuid, 'v4');
         handlerSpy = sinon.spy();
         streamSpy = sinon.stub(setupStreamHandler, 'default').returns(handlerSpy);
+        nextSongInQueue = sinon.spy();
     });
 
     afterEach(function() {
@@ -38,13 +40,13 @@ describe('setupServerConnectionHandler', function() {
     });
 
     it('should return a function', function() {
-        const results = setupServerConnectionHandler(tracks, filesByStreamer, writeToAllClients, addToStreamers);
+        const results = setupServerConnectionHandler(tracks, filesByStreamer, writeToAllClients, addToStreamers, nextSongInQueue);
 
         expect(results).to.be.a('function');
     });
 
     it('should return a handler that generates a streamer id and creates update track listing func', function() {
-        const connectionHandler = setupServerConnectionHandler(tracks, filesByStreamer, writeToAllClients, addToStreamers);
+        const connectionHandler = setupServerConnectionHandler(tracks, filesByStreamer, writeToAllClients, addToStreamers, nextSongInQueue);
         const streamer = new EventEmitter();
 
         connectionHandler(streamer);
@@ -53,14 +55,14 @@ describe('setupServerConnectionHandler', function() {
     });
 
     it('should return a handler that calls setupStreamHandler on stream event', function() {
-        const connectionHandler = setupServerConnectionHandler(tracks, filesByStreamer, writeToAllClients, addToStreamers);
+        const connectionHandler = setupServerConnectionHandler(tracks, filesByStreamer, writeToAllClients, addToStreamers, nextSongInQueue);
         const streamer = new EventEmitter();
         const mockStream = new EventEmitter();
 
         connectionHandler(streamer);
         streamer.emit('stream', mockStream);
 
-        expect(streamSpy.calledWith(writeToAllClients, addToStreamers, updateTrackListingSpy, uuidSpy.returnValues[0])).to.be.true;
+        expect(streamSpy.calledWith(writeToAllClients, addToStreamers, updateTrackListingSpy, uuidSpy.returnValues[0], nextSongInQueue)).to.be.true;
         expect(handlerSpy.calledWith(mockStream)).to.be.true;
     });
 });

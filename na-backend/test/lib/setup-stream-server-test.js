@@ -17,6 +17,8 @@ describe('setupStreamServer', function() {
     let createStreamersUpdateSpy;
     let handler;
     let setupConnectionSpy;
+    let nextSongInQueue;
+
     let streamers;
     let tracks;
     let filesByStreamer;
@@ -31,6 +33,7 @@ describe('setupStreamServer', function() {
         createStreamersUpdateSpy = sinon.stub(serverHelpers, 'createStreamersUpdate').returns(addToStreamers);
         handler = sinon.spy();
         setupConnectionSpy = sinon.stub(setupServerConnectionHandler, 'default').returns(handler);
+        nextSongInQueue = sinon.spy();
 
         streamers = {};
         tracks = {};
@@ -53,14 +56,14 @@ describe('setupStreamServer', function() {
     });
 
     it('should create functions for files, streams, clients and setup connection handler', function() {
-        setupStreamServer(streamers, tracks, filesByStreamer, clients);
+        setupStreamServer(streamers, tracks, filesByStreamer, clients, nextSongInQueue);
         const mockStream = {};
 
         mockServer.emit('connection', mockStream);
 
         expect(setClientListSpy.calledWith(clients)).to.be.true;
         expect(createStreamersUpdateSpy.calledWith(streamers)).to.be.true;
-        expect(setupConnectionSpy.calledWith(tracks, filesByStreamer, writeToAllClients, addToStreamers)).to.be.true;
+        expect(setupConnectionSpy.calledWith(tracks, filesByStreamer, writeToAllClients, addToStreamers, nextSongInQueue)).to.be.true;
         expect(handler.calledWith(mockStream)).to.be.true;
     });
 });
