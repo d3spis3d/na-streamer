@@ -2,6 +2,7 @@ import uuid from 'node-uuid';
 import express from 'express';
 
 import setupStreamServer from './lib/setup-stream-server';
+import {setupInitQueue} from './lib/server-helper'; 
 
 import {getSongByUUID} from './routes/song';
 import {getStream} from './routes/stream';
@@ -11,12 +12,15 @@ const filesByStreamer = {};
 const tracks = {};
 const clients = [];
 const streamers = {};
+const songQueue = [];
 
 const app = express();
 
+const populateQueue = setupInitQueue(songQueue, filesByStreamer, streamers);
+
 app.get(getSongByUUID.url, getSongByUUID.generateHandler(filesByStreamer, streamers));
 
-app.get(getStream.url, getStream.generateHandler(clients));
+app.get(getStream.url, getStream.generateHandler(clients, songQueue, populateQueue));
 
 app.get(getLibrary.url, getLibrary.generateHandler(tracks));
 

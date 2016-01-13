@@ -28,3 +28,19 @@ export function setTrackListingMap(tracks, filesByStreamer, streamerId) {
         }
     };
 }
+
+export function setupInitQueue(songQueue, filesByStreamer, streamers) {
+    return function() {
+        const files = Object.keys(filesByStreamer);
+        const filesCount = files.length;
+        for (let i = 0; i < 5; i++) {
+            const fileNumber = Math.floor(Math.random() * filesCount);
+            songQueue.push(files[fileNumber]);
+        }
+        console.log(songQueue);
+        const firstSong = songQueue.shift();
+        const streamerId = filesByStreamer[firstSong];
+        const stream = streamers[streamerId];
+        stream.write(firstSong);
+    };
+}
