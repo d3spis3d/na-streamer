@@ -1,6 +1,6 @@
 import Rx from 'rx';
 
-export default function(writeToAllClients, addToStreamers, updateTrackListing, streamerId) {
+export default function(writeToAllClients, addToStreamers, updateTrackListing, streamerId, nextSongInQueue) {
     return function(stream) {
         addToStreamers(streamerId, stream);
         const streamedData = Rx.Observable.fromEvent(stream, 'data');
@@ -12,7 +12,7 @@ export default function(writeToAllClients, addToStreamers, updateTrackListing, s
         const trackEnd = streamedData
             .filter(data => !Buffer.isBuffer(data) && (typeof data === 'string' || data instanceof String));
         trackEnd.subscribe(data => {
-            console.log('track finished', data);
+            nextSongInQueue();
         });
 
         const binaryData = streamedData

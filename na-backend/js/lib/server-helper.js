@@ -44,3 +44,12 @@ export function setupInitQueue(songQueue, filesByStreamer, streamers) {
         stream.write(firstSong);
     };
 }
+
+export function setupNextSong(songQueue, filesByStreamer, streamers) {
+    return function() {
+        const nextSong = songQueue.shift();
+        const streamerId = filesByStreamer[nextSong];
+        const stream = streamers[streamerId];
+        stream.write(nextSong);
+    }
+}
