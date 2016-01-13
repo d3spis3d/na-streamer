@@ -20,6 +20,8 @@ describe('Stream route', function() {
 
         it('should generate a handler to store client connections', function() {
             const clients = [];
+            const songQueue = [];
+            const populateQueue = sinon.spy();
 
             const inputRequest = {};
             const inputResponse = {
@@ -28,7 +30,7 @@ describe('Stream route', function() {
 
             const spy = sinon.spy(inputResponse, 'writeHead');
 
-            const handler = getStream.generateHandler(clients);
+            const handler = getStream.generateHandler(clients, songQueue, populateQueue);
 
             handler(inputRequest, inputResponse);
 
@@ -42,6 +44,8 @@ describe('Stream route', function() {
 
         it('should generate handler that ignores headers if already exist', function() {
             const clients = [];
+            const songQueue = [];
+            const populateQueue = sinon.spy();
 
             const inputRequest = {};
             const inputResponse = {
@@ -53,12 +57,56 @@ describe('Stream route', function() {
 
             const spy = sinon.spy(inputResponse, 'writeHead');
 
-            const handler = getStream.generateHandler(clients);
+            const handler = getStream.generateHandler(clients, songQueue, populateQueue);
 
             handler(inputRequest, inputResponse);
 
             expect(spy.callCount).to.equal(0);
             expect(clients).to.eql([{ res: inputResponse }]);
+        });
+
+        it('should generate handler that calls populateQueue if song queue is empty', function() {
+            const clients = [];
+            const songQueue = [];
+            const populateQueue = sinon.spy();
+
+            const inputRequest = {};
+            const inputResponse = {
+                headers: {
+                    "Content-Type": "audio/mpeg"
+                },
+                writeHead: function() { }
+            };
+
+            const spy = sinon.spy(inputResponse, 'writeHead');
+
+            const handler = getStream.generateHandler(clients, songQueue, populateQueue);
+
+            handler(inputRequest, inputResponse);
+
+            expect(populateQueue.called).to.be.true;
+        })
+
+        it('should generate handler that does not call populateQueue if queue contains songs', function() {
+            const clients = [];
+            const songQueue = ['xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'];
+            const populateQueue = sinon.spy();
+
+            const inputRequest = {};
+            const inputResponse = {
+                headers: {
+                    "Content-Type": "audio/mpeg"
+                },
+                writeHead: function() { }
+            };
+
+            const spy = sinon.spy(inputResponse, 'writeHead');
+
+            const handler = getStream.generateHandler(clients, songQueue, populateQueue);
+
+            handler(inputRequest, inputResponse);
+
+            expect(populateQueue.called).to.be.false;
         });
     });
 });
