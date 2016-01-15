@@ -27,6 +27,7 @@
     "binaryjs": "^0.2.1",
     "express": "^4.13.3",
     "node-uuid": "^1.4.7",
+    "orientjs": "^2.1.0",
     "rx": "^4.0.7"
   },
   "devDependencies": {
