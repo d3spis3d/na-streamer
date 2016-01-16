@@ -41,14 +41,6 @@ const appServer = app.listen(4000, function () {
         password: config.password
     });
 
-    const db = server.create({
-        name: 'music',
-        type: 'graph',
-        storage: 'memory'
-    })
-    .then((db) => {
-        console.log('Created database ', db.name);
-    });
-
-    const streamerServer = setupStreamServer(streamers, tracks, filesByStreamer, clients, nextSongInQueue);
+    const db = server.use('music');
+    const streamerServer = setupStreamServer(streamers, tracks, filesByStreamer, clients, nextSongInQueue, db);
 });

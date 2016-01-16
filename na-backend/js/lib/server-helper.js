@@ -13,8 +13,9 @@ export function setClientList(clients) {
     };
 }
 
-export function setTrackListingMap(tracks, filesByStreamer, streamerId) {
+export function setTrackListingMap(tracks, filesByStreamer, streamerId, db) {
     return function(data) {
+        console.log('update tracks listing called');
         for (let artist in data) {
             tracks[artist] = tracks[artist] || {};
             for (let albumName in data[artist]) {
@@ -23,6 +24,15 @@ export function setTrackListingMap(tracks, filesByStreamer, streamerId) {
                 for (let track in album) {
                     filesByStreamer[album[track].id] = streamerId;
                     tracks[artist][albumName][track] = album[track];
+                    console.log('querying database');
+                    db.query('insert into Song (title) values (:title)', {
+                        params: {
+                            title: album[track].title
+                        }
+                    })
+                    .then((response) => {
+                        console.log('Inserted:', response)
+                    });
                 }
             }
         }
