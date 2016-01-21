@@ -20,8 +20,6 @@ const filesById = {};
 const keyPath = path.join(options.dir, CLIENT_KEYFILE);
 let key;
 
-
-
 fs.stat(keyPath, (err, stats) => {
     if (err === null && stats.isFile()) {
         key = fs.readFileSync(keyPath, 'utf8');
@@ -30,5 +28,5 @@ fs.stat(keyPath, (err, stats) => {
         const file = fs.writeFileSync(keyPath, key);
     }
 
-    startClient(filesById, options.dir);
+    startClient(filesById, options.dir, key);
 });

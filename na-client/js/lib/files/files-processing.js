@@ -4,7 +4,9 @@ import Rx from 'rx';
 
 import extractTrack, {buildFileInfoForBackend} from './files-parsing';
 
-export function setupFilePathProcessor(sendFileData, processTracks, musicDir) {
+const CLIENT_KEYFILE = '.clientkey';
+
+export function setupFilePathProcessor(sendFileData, processTracks, musicDir, key) {
     return function(err, files) {
         if (err) {
             console.log(err);
@@ -12,14 +14,18 @@ export function setupFilePathProcessor(sendFileData, processTracks, musicDir) {
         }
 
         if (files) {
-            const tracks = files.map(extractTrack(musicDir));
+            const tracks = files.filter(file => file.indexOf(CLIENT_KEYFILE) === -1)
+                                .map(extractTrack(musicDir));
             const hostedTracks = processTracks(tracks, buildFileInfoForBackend, {});
-            sendFileData(hostedTracks);
+            sendFileData({
+                key: key,
+                tracks: hostedTracks
+            });
         }
     };
 }
 
-export function setupFileWatcher(sendFileData, processTracks, musicDir) {
+export function setupFileWatcher(sendFileData, processTracks, musicDir, key) {
     return function(monitor) {
         Rx.Observable.fromEvent(monitor, 'created')
             .filter((file) => {
@@ -28,11 +34,14 @@ export function setupFileWatcher(sendFileData, processTracks, musicDir) {
             .bufferWithTime(10000)
             .map((files) => {
                 const tracks = files.map(extractTrack(musicDir));
-                return processTracks(tracks, buildFileInfoForBackend, {});
+                return processTracks(tracks, buildFileInfoForBackend, {});;
             })
             .subscribe((tracks) => {
                 if (Object.keys(tracks).length > 0) {
-                    sendFileData(tracks);
+                    sendFileData({
+                        key: key,
+                        tracks: tracks
+                    });
                 }
             });
 
