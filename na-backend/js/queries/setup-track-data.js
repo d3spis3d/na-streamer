@@ -1,10 +1,28 @@
+export function createStreamer(db, streamerKey) {
+    return db.query('select * from Streamer where key=:key', {
+        params: {
+            key: streamerKey
+        }
+    })
+    .then(streamerResults => {
+        if (streamerResults.length) {
+            return;
+        }
+        return db.query('insert into Streamer (key) values (:key)', {
+            params: {
+                key: streamerKey
+            }
+        });
+    })
+}
+
 export function createArtist(db, artist) {
     return db.query('select * from Artist where name=:name', {
         params: {
             name: artist
         }
     })
-    .then((artistResults) => {
+    .then(artistResults => {
         if (artistResults.length) {
             return;
         }
@@ -75,8 +93,26 @@ export function createSong(db, albumName, title, number) {
     })
     .commit()
     .return('$secondVertex')
-    .all()
-    .then((response) => {
-        console.log('Inserted:', response)
-    });
+    .all();
+}
+
+export function associateSongAndStreamer(db, rid, key) {
+    return db.let('firstVertex', s => {
+        s.select()
+        .from('Streamer')
+        .where({'key': key});
+    })
+    .let('secondVertex', s => {
+        s.select()
+        .from('Song')
+        .where({'@rid': rid});
+    })
+    .let('joiningEdge', s => {
+        s.create('edge', 'Hosted_On')
+        .from('$secondVertex')
+        .to('$firstVertex');
+    })
+    .commit()
+    .return('$joiningEdge')
+    .all();
 }

@@ -1,4 +1,5 @@
-import {createArtist, createAlbum, createAlbumArtist, createSong} from '../queries/setup-track-data';
+import {createArtist, createAlbum, createAlbumArtist, createSong,
+        createStreamer, associateSongAndStreamer} from '../queries/setup-track-data';
 
 export function createStreamersUpdate(streamers) {
     return function(streamerId, stream) {
@@ -17,27 +18,37 @@ export function setClientList(clients) {
 
 export function setTrackListingMap(tracks, filesByStreamer, streamerId, db) {
     return function(data) {
-        for (let artist in data) {
-            tracks[artist] = tracks[artist] || {};
-            createArtist(db, artist)
-            .then(() => {
-                for (let albumName in data[artist]) {
-                    tracks[artist][albumName] = tracks[artist][albumName] || {};
-                    createAlbum(db, albumName)
-                    .then(() => {
-                        createAlbumArtist(db, artist, albumName)
+        const key = data.key;
+        const trackData = data.tracks;
+
+        createStreamer(db, key)
+        .then(() => {
+            for (let artist in trackData) {
+                tracks[artist] = tracks[artist] || {};
+                createArtist(db, artist)
+                .then(() => {
+                    for (let albumName in trackData[artist]) {
+                        tracks[artist][albumName] = tracks[artist][albumName] || {};
+                        createAlbum(db, albumName)
                         .then(() => {
-                            const album = data[artist][albumName];
-                            for (let track in album) {
-                                filesByStreamer[album[track].id] = streamerId;
-                                tracks[artist][albumName][track] = album[track];
-                                createSong(db, albumName, album[track].title, album[track].number);
-                            }
+                            createAlbumArtist(db, artist, albumName)
+                            .then(() => {
+                                const album = trackData[artist][albumName];
+                                for (let track in album) {
+                                    filesByStreamer[album[track].id] = streamerId;
+                                    tracks[artist][albumName][track] = album[track];
+                                    createSong(db, albumName, album[track].title, album[track].number)
+                                    .then((response) => {
+                                        associateSongAndStreamer(db, response[0]['@rid'], key);
+                                    });
+                                }
+                            });
                         });
-                    });
-                }
-            });
-        }
+                    }
+                });
+            }
+        })
+
     };
 }
 
