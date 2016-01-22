@@ -28,7 +28,7 @@ const server = OrientDB({
 
 const db = server.use('music');
 
-const populateQueue = setupInitQueue(songQueue, filesByStreamer, streamers);
+const populateQueue = setupInitQueue(songQueue, db, streamers);
 const nextSongInQueue = setupNextSong(songQueue, filesByStreamer, streamers);
 
 app.get(getSongByUUID.url, getSongByUUID.generateHandler(filesByStreamer, streamers));

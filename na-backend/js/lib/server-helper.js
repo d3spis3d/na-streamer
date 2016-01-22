@@ -4,6 +4,7 @@ import {createArtist, createAlbum, createAlbumArtist, createSong,
 export function createStreamersUpdate(streamers) {
     return function(streamerId, stream) {
         streamers[streamerId] = stream;
+        console.log(streamers);
     };
 }
 
@@ -47,19 +48,28 @@ export function setTrackListingMap(db) {
     };
 }
 
-export function setupInitQueue(songQueue, filesByStreamer, streamers) {
+export function setupInitQueue(songQueue, db, streamers) {
     return function() {
-        const files = Object.keys(filesByStreamer);
-        const filesCount = files.length;
-        for (let i = 0; i < 5; i++) {
-            const fileNumber = Math.floor(Math.random() * filesCount);
-            songQueue.push(files[fileNumber]);
-        }
+        let firstSong;
 
-        const firstSong = songQueue.shift();
-        const streamerId = filesByStreamer[firstSong];
-        const stream = streamers[streamerId];
-        stream.write(firstSong);
+        db.query('select * from Song')
+        .then(results => {
+            return results.map(result => result['@rid']);
+        })
+        .then(songs => {
+            const filesCount = songs.length;
+            for (let i = 0; i < 5; i++) {
+                const fileNumber = Math.floor(Math.random() * filesCount);
+                songQueue.push(songs[fileNumber]);
+            }
+
+            firstSong = songQueue.shift();
+            return db.query(`select expand( out("Hosted_On") ) from ${firstSong}`);
+        })
+        .then(results => {
+            const stream = streamers[results[0].key];
+            stream.write(firstSong);
+        });
     };
 }
 
