@@ -1,4 +1,4 @@
-import {listArtists} from '../queries/list-tracks';
+import {listArtists, listAlbums, listAlbumsByArtist} from '../queries/list-tracks';
 
 export const getLibrary = {
     url: '/library',
@@ -13,9 +13,27 @@ export const getArtists = {
     url: '/artists',
     generateHandler: function(db) {
         return function(req, res) {
-            listArtists(db).then((results) => {
+            listArtists(db).then(results => {
                 res.send(JSON.stringify(results));
             });
+        };
+    }
+}
+
+export const getAlbums = {
+    url: '/albums',
+    generateHandler: function(db) {
+        return function(req, res) {
+            let results;
+            if (req.param.artist) {
+                listAlbumsByArtist(db, req.param.artist).then(results => {
+                    res.send(JSON.stringify(results));
+                });
+            } else {
+                listAlbums(db).then(results => {
+                    res.send(JSON.stringify(results));
+                });
+            }
         };
     }
 }
