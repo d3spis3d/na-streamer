@@ -7,7 +7,7 @@ import {setupInitQueue, setupNextSong} from './lib/server-helper';
 
 import {getSongByUUID} from './routes/song';
 import {getStream} from './routes/stream';
-import {getLibrary, getArtists, getAlbums} from './routes/library';
+import {getLibrary, getArtists, getAlbums, getSongs} from './routes/library';
 
 import config from '../config';
 
@@ -36,6 +36,7 @@ app.get(getStream.url, getStream.generateHandler(clients, songQueue, populateQue
 app.get(getLibrary.url, getLibrary.generateHandler(tracks));
 app.get(getArtists.url, getArtists.generateHandler(db));
 app.get(getAlbums.url, getAlbums.generateHandler(db));
+app.get(getSongs.url, getSongs.generateHandler(db));
 
 const appServer = app.listen(4000, function () {
     const host = appServer.address().address;

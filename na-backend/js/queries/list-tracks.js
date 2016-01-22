@@ -22,3 +22,32 @@ export function listAlbumsByArtist(db, artistId) {
         return results.map(result => ({rid: result['@rid'], title: result.title}));
     });
 }
+
+export function listSongs(db) {
+    return db.query('select * from Song')
+    .then(results => {
+        return results.map(result => ({rid: result['@rid'], title: result.title, number: result.number}));
+    });
+}
+
+export function listSongsByAlbum(db, albumId) {
+    return db.query('select expand( in("Found_On") ) from Album where @rid = :rid', {
+        params: {
+            rid: albumId
+        }
+    })
+    .then(results => {
+        return results.map(result => ({rid: result['@rid'], title: result.title, number: result.number}));
+    });
+}
+
+export function listSongsByArtist(db, artistId) {
+    return db.query('select expand( in("Recorded_By").in("Found_On") ) from Artist where @rid = :rid', {
+        params: {
+            rid: artistId
+        }
+    })
+    .then(results => {
+        return results.map(result => ({rid: result['@rid'], title: result.title, number: result.number}));
+    });
+}

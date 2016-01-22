@@ -1,4 +1,5 @@
-import {listArtists, listAlbums, listAlbumsByArtist} from '../queries/list-tracks';
+import {listArtists, listAlbums, listAlbumsByArtist,
+        listSongs, listSongsByAlbum, } from '../queries/list-tracks';
 
 export const getLibrary = {
     url: '/library',
@@ -24,7 +25,6 @@ export const getAlbums = {
     url: '/albums',
     generateHandler: function(db) {
         return function(req, res) {
-            let results;
             if (req.param.artist) {
                 listAlbumsByArtist(db, req.param.artist).then(results => {
                     res.send(JSON.stringify(results));
@@ -35,5 +35,26 @@ export const getAlbums = {
                 });
             }
         };
+    }
+}
+
+export const getSongs = {
+    url: '/songs',
+    generateHandler: function(db) {
+        return function(req, res) {
+            if (req.param.album) {
+                listSongsByAlbum(db, req.param.album).then(results => {
+                    res.send(JSON.stringify(results));
+                });
+            } else if (req.param.artist) {
+                listSongsByArtist(db, req.param.artist).then(results => {
+                    res.send(JSON.stringify(results));
+                });
+            } else {
+                listSongs(db).then(results => {
+                    res.send(JSON.stringify(results));
+                });
+            }
+        }
     }
 }
