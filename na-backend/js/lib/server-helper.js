@@ -16,7 +16,7 @@ export function setClientList(clients) {
     };
 }
 
-export function setTrackListingMap(tracks, filesByStreamer, streamerId, db) {
+export function setTrackListingMap(db) {
     return function(data) {
         const key = data.key;
         const trackData = data.tracks;
@@ -24,19 +24,15 @@ export function setTrackListingMap(tracks, filesByStreamer, streamerId, db) {
         createStreamer(db, key)
         .then(() => {
             for (let artist in trackData) {
-                tracks[artist] = tracks[artist] || {};
                 createArtist(db, artist)
                 .then(() => {
                     for (let albumName in trackData[artist]) {
-                        tracks[artist][albumName] = tracks[artist][albumName] || {};
                         createAlbum(db, albumName)
                         .then(() => {
                             createAlbumArtist(db, artist, albumName)
                             .then(() => {
                                 const album = trackData[artist][albumName];
                                 for (let track in album) {
-                                    filesByStreamer[album[track].id] = streamerId;
-                                    tracks[artist][albumName][track] = album[track];
                                     createSong(db, albumName, album[track].title, album[track].number)
                                     .then((response) => {
                                         associateSongAndStreamer(db, response[0]['@rid'], key);
@@ -48,7 +44,6 @@ export function setTrackListingMap(tracks, filesByStreamer, streamerId, db) {
                 });
             }
         })
-
     };
 }
 

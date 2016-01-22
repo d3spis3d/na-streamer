@@ -43,5 +43,5 @@ const appServer = app.listen(4000, function () {
     const port = appServer.address().port;
 
     console.log('Example app listening at http://%s:%s', host, port);
-    const streamerServer = setupStreamServer(streamers, tracks, filesByStreamer, clients, nextSongInQueue, db);
+    const streamerServer = setupStreamServer(streamers, clients, nextSongInQueue, db);
 });
