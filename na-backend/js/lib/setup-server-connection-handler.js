@@ -1,5 +1,3 @@
-import uuid from 'node-uuid';
-
 import {setTrackListingMap} from './server-helper';
 import setupStreamHandler from './setup-stream-handler';
 
