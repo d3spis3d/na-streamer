@@ -4,7 +4,6 @@ import {createArtist, createAlbum, createAlbumArtist, createSong,
 export function createStreamersUpdate(streamers) {
     return function(streamerId, stream) {
         streamers[streamerId] = stream;
-        console.log(streamers);
     };
 }
 
@@ -64,20 +63,28 @@ export function setupInitQueue(songQueue, db, streamers) {
             }
 
             firstSong = songQueue.shift();
-            return db.query(`select expand( out("Hosted_On") ) from ${firstSong}`);
+            return db.query(`select *, out("Hosted_On").key as key from ${firstSong}`);
         })
         .then(results => {
-            const stream = streamers[results[0].key];
-            stream.write(firstSong);
+            const streamerKey = results[0].key[0];
+            const songId = results[0]['@rid'];
+
+            const stream = streamers[streamerKey];
+            stream.write(songId.toString());
         });
     };
 }
 
-export function setupNextSong(songQueue, filesByStreamer, streamers) {
+export function setupNextSong(songQueue, db, streamers) {
     return function() {
         const nextSong = songQueue.shift();
-        const streamerId = filesByStreamer[nextSong];
-        const stream = streamers[streamerId];
-        stream.write(nextSong);
+        db.query(`select *, out("Hosted_On").key as key from ${nextSong}`)
+        .then(results => {
+            const streamerKey = results[0].key[0];
+            const songId = results[0]['@rid'];
+
+            const stream = streamers[streamerKey];
+            stream.write(songId.toString());
+        });
     }
 }
