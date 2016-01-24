@@ -25,8 +25,8 @@ export const getAlbums = {
     url: '/albums',
     generateHandler: function(db) {
         return function(req, res) {
-            if (req.param.artist) {
-                listAlbumsByArtist(db, req.param.artist).then(results => {
+            if (req.query.artist) {
+                listAlbumsByArtist(db, req.query.artist).then(results => {
                     res.send(JSON.stringify(results));
                 });
             } else {
@@ -42,12 +42,12 @@ export const getSongs = {
     url: '/songs',
     generateHandler: function(db) {
         return function(req, res) {
-            if (req.param.album) {
-                listSongsByAlbum(db, req.param.album).then(results => {
+            if (req.query.album) {
+                listSongsByAlbum(db, req.query.album).then(results => {
                     res.send(JSON.stringify(results));
                 });
-            } else if (req.param.artist) {
-                listSongsByArtist(db, req.param.artist).then(results => {
+            } else if (req.query.artist) {
+                listSongsByArtist(db, req.query.artist).then(results => {
                     res.send(JSON.stringify(results));
                 });
             } else {
