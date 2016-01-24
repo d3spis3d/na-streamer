@@ -73,7 +73,7 @@ export function createAlbumArtist(db, artist, albumName) {
     .all()
 }
 
-export function createSong(db, albumName, title, number) {
+export function createSong(db, albumName, song) {
     return db.let('firstVertex', s => {
         s.select()
         .from('Album')
@@ -82,8 +82,9 @@ export function createSong(db, albumName, title, number) {
     .let('secondVertex', s => {
         s.create('vertex', 'Song')
         .set({
-            title: title,
-            number: number
+            title: song.title,
+            number: song.number,
+            id: song.id
         });
     })
     .let('joiningEdge', s => {

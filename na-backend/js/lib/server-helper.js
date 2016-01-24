@@ -33,7 +33,7 @@ export function setTrackListingMap(db) {
                             .then(() => {
                                 const album = trackData[artist][albumName];
                                 for (let track in album) {
-                                    createSong(db, albumName, album[track].title, album[track].number)
+                                    createSong(db, albumName, album[track])
                                     .then((response) => {
                                         associateSongAndStreamer(db, response[0]['@rid'], key);
                                     });
@@ -67,7 +67,7 @@ export function setupInitQueue(songQueue, db, streamers) {
         })
         .then(results => {
             const streamerKey = results[0].key[0];
-            const songId = results[0]['@rid'];
+            const songId = results[0].id;
 
             const stream = streamers[streamerKey];
             stream.write(songId.toString());
@@ -81,7 +81,7 @@ export function setupNextSong(songQueue, db, streamers) {
         db.query(`select *, out("Hosted_On").key as key from ${nextSong}`)
         .then(results => {
             const streamerKey = results[0].key[0];
-            const songId = results[0]['@rid'];
+            const songId = results[0].id;
 
             const stream = streamers[streamerKey];
             stream.write(songId.toString());
