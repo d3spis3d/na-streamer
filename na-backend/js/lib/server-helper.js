@@ -1,3 +1,6 @@
+import {createArtist, createAlbum, createAlbumArtist, createSong,
+        createStreamer, associateSongAndStreamer} from '../queries/setup-track-data';
+
 export function createStreamersUpdate(streamers) {
     return function(streamerId, stream) {
         streamers[streamerId] = stream;
@@ -13,43 +16,75 @@ export function setClientList(clients) {
     };
 }
 
-export function setTrackListingMap(tracks, filesByStreamer, streamerId) {
+export function setTrackListingMap(db) {
     return function(data) {
-        for (let artist in data) {
-            tracks[artist] = tracks[artist] || {};
-            for (let albumName in data[artist]) {
-                tracks[artist][albumName] = tracks[artist][albumName] || {};
-                const album = data[artist][albumName];
-                for (let track in album) {
-                    filesByStreamer[album[track].id] = streamerId;
-                    tracks[artist][albumName][track] = album[track];
-                }
+        const key = data.key;
+        const trackData = data.tracks;
+
+        createStreamer(db, key)
+        .then(() => {
+            for (let artist in trackData) {
+                createArtist(db, artist)
+                .then(() => {
+                    for (let albumName in trackData[artist]) {
+                        createAlbum(db, albumName)
+                        .then(() => {
+                            createAlbumArtist(db, artist, albumName)
+                            .then(() => {
+                                const album = trackData[artist][albumName];
+                                for (let track in album) {
+                                    createSong(db, albumName, album[track])
+                                    .then((response) => {
+                                        associateSongAndStreamer(db, response[0]['@rid'], key);
+                                    });
+                                }
+                            });
+                        });
+                    }
+                });
             }
-        }
+        })
     };
 }
 
-export function setupInitQueue(songQueue, filesByStreamer, streamers) {
+export function setupInitQueue(songQueue, db, streamers) {
     return function() {
-        const files = Object.keys(filesByStreamer);
-        const filesCount = files.length;
-        for (let i = 0; i < 5; i++) {
-            const fileNumber = Math.floor(Math.random() * filesCount);
-            songQueue.push(files[fileNumber]);
-        }
+        let firstSong;
 
-        const firstSong = songQueue.shift();
-        const streamerId = filesByStreamer[firstSong];
-        const stream = streamers[streamerId];
-        stream.write(firstSong);
+        db.query('select * from Song')
+        .then(results => {
+            return results.map(result => result['@rid']);
+        })
+        .then(songs => {
+            const filesCount = songs.length;
+            for (let i = 0; i < 5; i++) {
+                const fileNumber = Math.floor(Math.random() * filesCount);
+                songQueue.push(songs[fileNumber]);
+            }
+
+            firstSong = songQueue.shift();
+            return db.query(`select *, out("Hosted_On").key as key from ${firstSong}`);
+        })
+        .then(results => {
+            const streamerKey = results[0].key[0];
+            const songId = results[0].id;
+
+            const stream = streamers[streamerKey];
+            stream.write(songId.toString());
+        });
     };
 }
 
-export function setupNextSong(songQueue, filesByStreamer, streamers) {
+export function setupNextSong(songQueue, db, streamers) {
     return function() {
         const nextSong = songQueue.shift();
-        const streamerId = filesByStreamer[nextSong];
-        const stream = streamers[streamerId];
-        stream.write(nextSong);
+        db.query(`select *, out("Hosted_On").key as key from ${nextSong}`)
+        .then(results => {
+            const streamerKey = results[0].key[0];
+            const songId = results[0].id;
+
+            const stream = streamers[streamerKey];
+            stream.write(songId.toString());
+        });
     }
 }

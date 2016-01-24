@@ -1,0 +1,9 @@
+CREATE DATABASE remote:localhost/music ---INSERT-USER--- ---INSERT-PASSWORD--- memory graph;
+CREATE CLASS Artist extends V;
+CREATE CLASS Album extends V;
+CREATE CLASS Song extends V;
+CREATE CLASS Streamer extends V;
+CREATE CLASS Found_On extends E;
+CREATE CLASS Recorded_By extends E;
+CREATE CLASS Belongs_To extends E;
+CREATE CLASS Hosted_On extends E;

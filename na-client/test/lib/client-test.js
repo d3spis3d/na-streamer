@@ -14,12 +14,13 @@ describe('startClient', function() {
         const musicDir = ['home', 'test', 'music'].join(path.sep);
         const clientSpy = sinon.stub(binaryjs, 'BinaryClient').returns(new EventEmitter());
         const openStreamSpy = sinon.stub(openStreamToServer, 'default');
+        const key = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
 
-        const client = startClient(filesStore, musicDir);
+        const client = startClient(filesStore, musicDir, key);
 
         client.emit('open');
 
-        expect(openStreamSpy.calledWith(filesStore, musicDir, client)).to.be.true;
+        expect(openStreamSpy.calledWith(filesStore, musicDir, client, key)).to.be.true;
         openStreamToServer.default.restore();
     });
 });

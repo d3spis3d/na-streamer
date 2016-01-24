@@ -15,6 +15,7 @@ describe('setupFilesProcessing', function() {
     let filePathSpy;
     let fileWatcher;
     let fileWatcherSpy;
+    const key = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
 
     beforeEach(function() {
         dirSpy = sinon.stub(dir, 'files');
@@ -37,9 +38,12 @@ describe('setupFilesProcessing', function() {
         const sendFileData = sinon.spy();
         const musicDir = ['home', 'music'].join(path.sep);
 
-        setupFilesProcessing(filesStore, sendFileData, musicDir);
+        setupFilesProcessing(filesStore, sendFileData, musicDir, key);
 
         expect(dirSpy.calledWith(musicDir, filePathProcessor)).to.be.true;
         expect(watchSpy.calledWith(musicDir, fileWatcher)).to.be.true;
+
+        expect(filePathSpy.calledWith(sendFileData, sinon.match.func, musicDir, key)).to.be.true;
+        expect(fileWatcherSpy.calledWith(sendFileData, sinon.match.func, musicDir, key)).to.be.true;
     });
 });

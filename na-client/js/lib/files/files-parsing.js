@@ -1,11 +1,13 @@
 import path from 'path';
+import crypto from 'crypto';
 
 import uuid from 'node-uuid';
 
 export default function(musicDir) {
     return function(file) {
         const [artist, album, songFile] = path.relative(musicDir, file).split(path.sep);
-        const {number, title, id} = createTrackData(songFile);
+        const id = crypto.createHash('sha256').update(file).digest('hex');
+        const {number, title} = createTrackData(songFile);
         return {
             artist,
             album,
@@ -20,9 +22,8 @@ export default function(musicDir) {
 export function createTrackData(songFile) {
     const [number, song] = songFile.split('-');
     const [title, ] = song.split('.');
-    const id = uuid.v4();
     return {
-        number, title, id
+        number, title
     };
 }
 

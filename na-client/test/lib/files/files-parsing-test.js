@@ -10,12 +10,10 @@ describe('createTrackData', function() {
 
         const expectedNumber = '01';
         const expectedTitle = 'Song Title';
-        const expectedId = /[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}/;
 
         const result = createTrackData(input);
         expect(result.number).to.equal(expectedNumber);
         expect(result.title).to.equal(expectedTitle);
-        expect(result.id).to.be.match(expectedId);
     });
 });
 
@@ -37,7 +35,7 @@ describe('extractTrack', function() {
             file: input,
             number: '01',
             title: 'Song Title',
-            id: /[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}/
+            id: /[0-9a-f]{56}/
         };
 
         const func = extractTrack(musicDir);

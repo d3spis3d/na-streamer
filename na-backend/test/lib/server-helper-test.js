@@ -41,131 +41,11 @@ describe('setClientList', function() {
 
 describe('setTrackListingMap', function() {
     it('should return a function', function() {
-        const tracks = {};
-        const filesByStreamer = {};
-        const streamerId = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
+        const db = sinon.spy();
 
-        const results = setTrackListingMap(tracks, filesByStreamer, streamerId);
+        const results = setTrackListingMap(db);
 
         expect(results).to.be.a('function');
-    });
-
-    it('should generate a function to update tracks and files by streamer id', function() {
-        const tracks = {};
-        const filesByStreamer = {};
-        const streamerId = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
-
-        const inputData = {
-            'Artist': {
-                'Album1': {
-                    '01': {
-                        title: 'Track One',
-                        id: 'yyyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy'
-                    }
-                },
-                'Album2': {
-                    '01': {
-                        title: 'First Song',
-                        id: 'zzzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz'
-                    }
-                }
-            }
-        };
-
-        const expectedTracks = {
-            'Artist': {
-                'Album1': {
-                    '01': {
-                        title: 'Track One',
-                        id: 'yyyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy'
-                    }
-                },
-                'Album2': {
-                    '01': {
-                        title: 'First Song',
-                        id: 'zzzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz'
-                    }
-                }
-            }
-        };
-        const expectedFilesByStreamer = {
-            'yyyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy': 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
-            'zzzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz': 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
-        };
-
-        const updateTrackListing = setTrackListingMap(tracks, filesByStreamer, streamerId);
-
-        updateTrackListing(inputData);
-        expect(tracks).to.eql(expectedTracks);
-        expect(filesByStreamer).to.eql(expectedFilesByStreamer);
-    });
-
-    it('should generate a function to update tracks and files by streamer id when tracks already exist', function() {
-        const tracks = {
-            'Artist': {
-                'Album Zero': {
-                    '01': {
-                        title: 'Numero Uno',
-                        id: 'wwwwwwww-wwww-wwww-wwww-wwwwwwwwwwww'
-                    }
-                }
-            }
-        };
-        const filesByStreamer = {
-            'wwwwwwww-wwww-wwww-wwww-wwwwwwwwwwww': 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
-        };
-        const streamerId = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
-
-        const inputData = {
-            'Artist': {
-                'Album1': {
-                    '01': {
-                        title: 'Track One',
-                        id: 'yyyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy'
-                    }
-                },
-                'Album2': {
-                    '01': {
-                        title: 'First Song',
-                        id: 'zzzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz'
-                    }
-                }
-            }
-        };
-
-        const expectedTracks = {
-            'Artist': {
-                'Album Zero': {
-                    '01': {
-                        title: 'Numero Uno',
-                        id: 'wwwwwwww-wwww-wwww-wwww-wwwwwwwwwwww'
-                    }
-                },
-                'Album1': {
-                    '01': {
-                        title: 'Track One',
-                        id: 'yyyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy'
-                    }
-                },
-                'Album2': {
-                    '01': {
-                        title: 'First Song',
-                        id: 'zzzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz'
-                    }
-                }
-            }
-        };
-        const expectedFilesByStreamer = {
-            'wwwwwwww-wwww-wwww-wwww-wwwwwwwwwwww': 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-            'yyyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy': 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
-            'zzzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz': 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
-        };
-
-        const updateTrackListing = setTrackListingMap(tracks, filesByStreamer, streamerId);
-
-        updateTrackListing(inputData);
-        expect(tracks).to.eql(expectedTracks);
-        expect(filesByStreamer).to.eql(expectedFilesByStreamer);
     });
 });
 
@@ -202,33 +82,6 @@ describe('setupInitQueue', function() {
 
         expect(results).to.be.a('function');
     });
-
-    it('should return a function that sets up a queue of five songs and plays the first', function() {
-        const songQueue = {
-            push: () => { },
-            shift: () => { }
-        };
-        const pushSpy = sinon.spy(songQueue, 'push');
-        const shiftSpy = sinon.stub(songQueue, 'shift').returns('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx');
-
-        const filesByStreamer = {
-            'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx': 'yyyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy'
-        };
-
-        const writeSpy = sinon.spy();
-        const streamers = {
-            'yyyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy': {
-                write: writeSpy
-            }
-        };
-
-        const initQueue = setupInitQueue(songQueue, filesByStreamer, streamers);
-
-        initQueue();
-        expect(pushSpy.callCount).to.equal(5);
-        expect(shiftSpy.callCount).to.equal(1);
-        expect(writeSpy.calledWith('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx')).to.be.true;
-    });
 });
 
 describe('setupNextSong', function() {
@@ -240,29 +93,5 @@ describe('setupNextSong', function() {
         const results = setupNextSong(songQueue, filesByStreamer, streamers);
 
         expect(results).to.be.a('function');
-    });
-
-    it('should return a function that starts the streaming of the next song in the queue', function () {
-        const songQueue = {
-            shift: () => { }
-        };
-        const shiftSpy = sinon.stub(songQueue, 'shift').returns('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx');
-
-        const filesByStreamer = {
-            'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx': 'yyyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy'
-        };
-
-        const writeSpy = sinon.spy();
-        const streamers = {
-            'yyyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy': {
-                write: writeSpy
-            }
-        };
-
-        const nextSong = setupNextSong(songQueue, filesByStreamer, streamers);
-
-        nextSong();
-        expect(shiftSpy.callCount).to.equal(1);
-        expect(writeSpy.calledWith('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx')).to.be.true;
     });
 });

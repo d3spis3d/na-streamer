@@ -21,11 +21,12 @@ describe('openStreamToServer', function() {
         const filesSpy = sinon.stub(setupFilesProcessing, 'default');
         const mockWriteStream = sinon.spy();
         const writeSpy = sinon.stub(helpers, 'createWriteStream').returns(mockWriteStream);
+        const key = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
 
-        const results = openStreamToServer(filesStore, musicDir, client);
+        const results = openStreamToServer(filesStore, musicDir, client, key);
 
         expect(writeSpy.calledWith(mockStream)).to.be.true;
         expect(clientSpy.called).to.be.true;
-        expect(filesSpy.calledWith(filesStore, mockWriteStream, musicDir)).to.be.true;
+        expect(filesSpy.calledWith(filesStore, mockWriteStream, musicDir, key)).to.be.true;
     });
 });

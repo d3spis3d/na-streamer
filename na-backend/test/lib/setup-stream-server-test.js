@@ -18,10 +18,9 @@ describe('setupStreamServer', function() {
     let handler;
     let setupConnectionSpy;
     let nextSongInQueue;
+    let db;
 
     let streamers;
-    let tracks;
-    let filesByStreamer;
     let clients;
 
     beforeEach(function() {
@@ -34,10 +33,9 @@ describe('setupStreamServer', function() {
         handler = sinon.spy();
         setupConnectionSpy = sinon.stub(setupServerConnectionHandler, 'default').returns(handler);
         nextSongInQueue = sinon.spy();
+        db = sinon.spy();
 
         streamers = {};
-        tracks = {};
-        filesByStreamer = {};
         clients = [];
     });
 
@@ -49,21 +47,21 @@ describe('setupStreamServer', function() {
     });
 
     it('should create binaryjs server', function() {
-        setupStreamServer(streamers, tracks, filesByStreamer, clients);
+        setupStreamServer(streamers, clients, nextSongInQueue, db);
         const expectedArgs = {port: 9000};
 
         expect(binaryServerSpy.calledWith(expectedArgs));
     });
 
     it('should create functions for files, streams, clients and setup connection handler', function() {
-        setupStreamServer(streamers, tracks, filesByStreamer, clients, nextSongInQueue);
+        setupStreamServer(streamers, clients, nextSongInQueue, db);
         const mockStream = {};
 
         mockServer.emit('connection', mockStream);
 
         expect(setClientListSpy.calledWith(clients)).to.be.true;
         expect(createStreamersUpdateSpy.calledWith(streamers)).to.be.true;
-        expect(setupConnectionSpy.calledWith(tracks, filesByStreamer, writeToAllClients, addToStreamers, nextSongInQueue)).to.be.true;
+        expect(setupConnectionSpy.calledWith(writeToAllClients, addToStreamers, nextSongInQueue, db)).to.be.true;
         expect(handler.calledWith(mockStream)).to.be.true;
     });
 });
