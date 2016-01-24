@@ -82,33 +82,6 @@ describe('setupInitQueue', function() {
 
         expect(results).to.be.a('function');
     });
-
-    it('should return a function that sets up a queue of five songs and plays the first', function() {
-        const songQueue = {
-            push: () => { },
-            shift: () => { }
-        };
-        const pushSpy = sinon.spy(songQueue, 'push');
-        const shiftSpy = sinon.stub(songQueue, 'shift').returns('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx');
-
-        const filesByStreamer = {
-            'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx': 'yyyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy'
-        };
-
-        const writeSpy = sinon.spy();
-        const streamers = {
-            'yyyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy': {
-                write: writeSpy
-            }
-        };
-
-        const initQueue = setupInitQueue(songQueue, filesByStreamer, streamers);
-
-        initQueue();
-        expect(pushSpy.callCount).to.equal(5);
-        expect(shiftSpy.callCount).to.equal(1);
-        expect(writeSpy.calledWith('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx')).to.be.true;
-    });
 });
 
 describe('setupNextSong', function() {
@@ -120,29 +93,5 @@ describe('setupNextSong', function() {
         const results = setupNextSong(songQueue, filesByStreamer, streamers);
 
         expect(results).to.be.a('function');
-    });
-
-    it('should return a function that starts the streaming of the next song in the queue', function () {
-        const songQueue = {
-            shift: () => { }
-        };
-        const shiftSpy = sinon.stub(songQueue, 'shift').returns('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx');
-
-        const filesByStreamer = {
-            'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx': 'yyyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy'
-        };
-
-        const writeSpy = sinon.spy();
-        const streamers = {
-            'yyyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy': {
-                write: writeSpy
-            }
-        };
-
-        const nextSong = setupNextSong(songQueue, filesByStreamer, streamers);
-
-        nextSong();
-        expect(shiftSpy.callCount).to.equal(1);
-        expect(writeSpy.calledWith('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx')).to.be.true;
     });
 });
