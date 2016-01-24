@@ -1,4 +1,4 @@
-CREATE DATABASE remote:localhost/music dan password memory graph;
+CREATE DATABASE remote:localhost/music ---INSERT-USER--- ---INSERT-PASSWORD--- memory graph;
 CREATE CLASS Artist extends V;
 CREATE CLASS Album extends V;
 CREATE CLASS Song extends V;
