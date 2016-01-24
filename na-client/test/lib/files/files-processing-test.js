@@ -1,5 +1,5 @@
-import uuid from 'node-uuid';
 import fs from 'fs';
+import crypto from 'crypto';
 import {EventEmitter} from 'events';
 
 import {expect} from 'chai';
@@ -13,7 +13,9 @@ describe('setupFilePathProcessor', function() {
     let sendFileData;
     let processTracks;
     let musicDir;
-    let uuidSpy;
+    let updateHash;
+    let digestHash;
+    let hash;
 
     const key = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
     const mockHostedTracks = {
@@ -21,7 +23,7 @@ describe('setupFilePathProcessor', function() {
             'Album': {
                 '01': {
                     title: 'Song Title',
-                    id: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx'
+                    id: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
                 }
             }
         }
@@ -32,13 +34,19 @@ describe('setupFilePathProcessor', function() {
         sendFileData = sinon.spy();
         processTracks = sinon.stub().returns(mockHostedTracks);
         musicDir = ['home', 'music'].join(path.sep);
-        uuidSpy = sinon.stub(uuid, 'v4').returns('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx');
+        digestHash = {
+            digest: sinon.stub().returns('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+        };
+        updateHash = {
+            update: sinon.stub().returns(digestHash)
+        };
+        hash = sinon.stub(crypto, 'createHash').returns(updateHash);
     });
 
     afterEach(function() {
-        uuid.v4.restore();
         sendFileData = null;
         processTracks = null;
+        crypto.createHash.restore();
     });
 
     it('should return a function', function() {
@@ -68,7 +76,7 @@ describe('setupFilePathProcessor', function() {
             file: ['home', 'music', 'Artist', 'Album', '01-Song Title.mp3'].join(path.sep),
             number: '01',
             title: 'Song Title',
-            id: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx'
+            id: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
         }];
 
         expect(processTracks.calledWith(expectedTracks, sinon.match.func, {})).to.be.true;
@@ -79,7 +87,7 @@ describe('setupFilePathProcessor', function() {
                     'Album': {
                         '01': {
                             title: 'Song Title',
-                            id: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx'
+                            id: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
                         }
                     }
                 }
@@ -92,7 +100,9 @@ describe('setupFileWatcher', function() {
     let sendFileData;
     let processTracks;
     let musicDir;
-    let uuidSpy;
+    let updateHash;
+    let digestHash;
+    let hash;
 
     const key = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
     const mockHostedTracks = {
@@ -114,11 +124,17 @@ describe('setupFileWatcher', function() {
         sendFileData = sinon.spy();
         processTracks = sinon.stub().returns(mockHostedTracks);
         musicDir = ['home', 'music'].join(path.sep);
-        uuidSpy = sinon.spy(uuid, 'v4');
+        digestHash = {
+            digest: sinon.stub().returns('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+        };
+        updateHash = {
+            update: sinon.stub().returns(digestHash)
+        };
+        hash = sinon.stub(crypto, 'createHash').returns(updateHash);
     });
 
     afterEach(function() {
-        uuid.v4.restore();
+        crypto.createHash.restore();
     });
 
     it('should return a function', function() {
@@ -144,8 +160,8 @@ describe('setupFileWatcher', function() {
 
         setTimeout(function() {
             const expectedTracks = [
-                {artist: 'Artist', album: 'Album', number: '01', title: 'Song Title', id: uuidSpy.returnValues[0], file: ['home', 'music', 'Artist', 'Album', '01-Song Title.mp3'].join(path.sep)},
-                {artist: 'Artist', album: 'Album', number: '02', title: 'Song Two', id: uuidSpy.returnValues[1], file: ['home', 'music', 'Artist', 'Album', '02-Song Two.mp3'].join(path.sep)}
+                {artist: 'Artist', album: 'Album', number: '01', title: 'Song Title', id: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', file: ['home', 'music', 'Artist', 'Album', '01-Song Title.mp3'].join(path.sep)},
+                {artist: 'Artist', album: 'Album', number: '02', title: 'Song Two', id: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', file: ['home', 'music', 'Artist', 'Album', '02-Song Two.mp3'].join(path.sep)}
             ];
 
             expect(processTracks.args[0][0]).to.eql(expectedTracks);
