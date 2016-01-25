@@ -1,14 +1,5 @@
 import {listArtists, listAlbums, listAlbumsByArtist,
-        listSongs, listSongsByAlbum, } from '../queries/list-tracks';
-
-export const getLibrary = {
-    url: '/library',
-    generateHandler: function(tracks) {
-        return function(req, res) {
-            res.send(JSON.stringify(tracks));
-        };
-    }
-}
+        listSongs, listSongsByAlbum, listSongsByArtist} from '../queries/list-tracks';
 
 export const getArtists = {
     url: '/artists',
