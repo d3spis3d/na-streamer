@@ -47,22 +47,21 @@ export function setTrackListingMap(db) {
     };
 }
 
-export function setupInitQueue(songQueue, db, streamers) {
+export function setupInitQueue(db, streamers) {
     return function() {
-        let firstSong;
-
         db.query('select * from Song')
         .then(results => {
             return results.map(result => result['@rid']);
         })
         .then(songs => {
             const filesCount = songs.length;
-            for (let i = 0; i < 5; i++) {
+            for (let i = 0; i < 4; i++) {
                 const fileNumber = Math.floor(Math.random() * filesCount);
-                songQueue.push(songs[fileNumber]);
+                db.query(`insert into Queue (id) values (${songs[fileNumber]})`)
             }
 
-            firstSong = songQueue.shift();
+            const fileNumber = Math.floor(Math.random() * filesCount);
+            const firstSong = songs[fileNumber];
             return db.query(`select *, out("Hosted_On").key as key from ${firstSong}`);
         })
         .then(results => {
@@ -75,10 +74,12 @@ export function setupInitQueue(songQueue, db, streamers) {
     };
 }
 
-export function setupNextSong(songQueue, db, streamers) {
+export function setupNextSong(db, streamers) {
     return function() {
-        const nextSong = songQueue.shift();
-        db.query(`select *, out("Hosted_On").key as key from ${nextSong}`)
+        db.query('delete vertex from Queue return before limit 1')
+        .then(result => {
+            return db.query(`select *, out("Hosted_On").key as key from ${result.id}`)
+        })
         .then(results => {
             const streamerKey = results[0].key[0];
             const songId = results[0].id;

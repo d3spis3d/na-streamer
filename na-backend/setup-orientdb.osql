@@ -7,3 +7,4 @@ CREATE CLASS Found_On extends E;
 CREATE CLASS Recorded_By extends E;
 CREATE CLASS Belongs_To extends E;
 CREATE CLASS Hosted_On extends E;
+CREATE CLASS Queue extends V;
