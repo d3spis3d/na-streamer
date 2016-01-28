@@ -1,6 +1,6 @@
 export const getStream = {
     url: '/stream',
-    generateHandler: function(clients, songQueue, populateQueue) {
+    generateHandler: function(clients, populateQueue) {
         return function(req, res) {
             const headers = {
                 "Content-Type": "audio/mpeg",
@@ -11,10 +11,7 @@ export const getStream = {
                 res.writeHead(200, headers);
             }
             clients.push({res});
-
-            if (songQueue.length === 0) {
-                populateQueue();
-            }
+            populateQueue();
         };
     }
 }

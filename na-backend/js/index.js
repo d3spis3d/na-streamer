@@ -4,19 +4,13 @@ import OrientDB from 'orientjs';
 
 import setupStreamServer from './lib/setup-stream-server';
 import {setupInitQueue, setupNextSong} from './lib/server-helper';
-
-import {getSongByUUID} from './routes/song';
-import {getStream} from './routes/stream';
-import {getArtists, getAlbums, getSongs} from './routes/library';
-import {getQueue} from './routes/queue';
+import setupRoutes from './routes/routes-setup';
 
 import config from '../config';
 
-const filesByStreamer = {};
 const tracks = {};
 const clients = [];
 const streamers = {};
-const songQueue = [];
 
 const app = express();
 
@@ -32,12 +26,7 @@ const db = server.use('music');
 const populateQueue = setupInitQueue(db, streamers);
 const nextSongInQueue = setupNextSong(db, streamers);
 
-app.get(getSongByUUID.url, getSongByUUID.generateHandler(filesByStreamer, streamers));
-app.get(getStream.url, getStream.generateHandler(clients, songQueue, populateQueue));
-app.get(getArtists.url, getArtists.generateHandler(db));
-app.get(getAlbums.url, getAlbums.generateHandler(db));
-app.get(getSongs.url, getSongs.generateHandler(db));
-app.get(getQueue.url, getQueue.generateHandler(db));
+routesSetup(app, db, clients, populateQueue);
 
 const appServer = app.listen(4000, function () {
     const host = appServer.address().address;
