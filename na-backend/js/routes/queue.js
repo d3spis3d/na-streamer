@@ -4,6 +4,15 @@ export const getQueue = {
         return function(req, res) {
             db.query('select * from Queue')
             .then(results => {
+                return results.map(result => result.id);
+            })
+            .then(rids => {
+                if (rids.length) {
+                    return db.query(`select *, out('Found_On').title as album, out('Found_On').out('Recorded_By').name as artist from [${rids}]`);
+                }
+                return [];
+            })
+            .then(results => {
                 res.send(JSON.stringify(results));
             });
         };
