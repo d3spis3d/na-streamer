@@ -26,7 +26,7 @@ const db = server.use('music');
 const populateQueue = setupInitQueue(db, streamers);
 const nextSongInQueue = setupNextSong(db, streamers);
 
-routesSetup(app, db, clients, populateQueue);
+setupRoutes(app, db, clients, populateQueue);
 
 const appServer = app.listen(4000, function () {
     const host = appServer.address().address;
