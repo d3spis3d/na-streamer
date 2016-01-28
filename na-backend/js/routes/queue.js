@@ -24,7 +24,10 @@ export const addToQueue = {
     generateHandler: function(db) {
         return function(req, res) {
             const rid = req.body.rid;
-            db.query(`insert into Queue (id) values (${rid})`);
+            db.query(`insert into Queue (id) values (${rid})`)
+            .then(() => {
+                res.sendStatus(200);
+            });
         };
     }
 }
