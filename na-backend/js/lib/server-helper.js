@@ -49,7 +49,13 @@ export function setTrackListingMap(db) {
 
 export function setupInitQueue(db, streamers) {
     return function() {
-        db.query('select * from Song')
+        db.query('select * from Queue')
+        .then(results => {
+            if (results.length) {
+                return Promise.reject('Queue already populated');
+            }
+            return db.query('select * from Song');
+        })
         .then(results => {
             return results.map(result => result['@rid']);
         })
@@ -76,9 +82,9 @@ export function setupInitQueue(db, streamers) {
 
 export function setupNextSong(db, streamers) {
     return function() {
-        db.query('delete vertex from Queue return before limit 1')
-        .then(result => {
-            return db.query(`select *, out("Hosted_On").key as key from ${result.id}`)
+        db.query('delete vertex Queue return before limit 1')
+        .then(results => {
+            return db.query(`select *, out("Hosted_On").key as key from ${results[0].id}`)
         })
         .then(results => {
             const streamerKey = results[0].key[0];

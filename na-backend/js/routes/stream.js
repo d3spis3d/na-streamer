@@ -4,7 +4,6 @@ export const getStream = {
         return function(req, res) {
             const headers = {
                 "Content-Type": "audio/mpeg",
-                "Connection": "close",
                 "Transfer-Encoding": "identity"
             };
 
