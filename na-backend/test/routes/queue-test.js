@@ -88,6 +88,9 @@ describe('Queue route', function() {
             const result = handler(req, res);
 
             expect(result).to.eventually.be.fulfilled.then(function() {
+                expect(query.calledWith('select * from Queue')).to.be.true;
+                expect(query.calledWith(`select *, out('Found_On').title as album, out('Found_On').out('Recorded_By').name as artist from [#1:1,#1:2]`)).to.be.true;
+                expect(res.send.calledWith(JSON.stringify(songOnQueue))).to.be.true;
                 done();
             });
         });
