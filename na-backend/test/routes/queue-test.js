@@ -94,5 +94,31 @@ describe('Queue route', function() {
                 done();
             });
         });
+
+        it('should generate a handler that returns an empty array when no queued songs', function() {
+            const allQueue = [];
+
+            const query = sinon.stub();
+            const db = {
+                query: query
+            };
+            query.onFirstCall().returns(Promise.resolve(allQueue));
+
+            const req = {};
+            const res = {
+                send: sinon.spy()
+            };
+
+            const handler = getQueue.generateHandler(db);
+
+            const result = handler(req, res);
+
+            expect(result).to.eventually.be.fulfilled.then(function() {
+                expect(query.calledWith('select * from Queue')).to.be.true;
+                expect(query.neverCalledWith(`select *, out('Found_On').title as album, out('Found_On').out('Recorded_By').name as artist from []`)).to.be.true;
+                expect(res.send.calledWith(JSON.stringify([]))).to.be.true;
+                done();
+            });
+        });
     });
 });
