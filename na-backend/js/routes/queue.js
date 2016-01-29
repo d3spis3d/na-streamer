@@ -2,7 +2,7 @@ export const getQueue = {
     url: '/queue',
     generateHandler: function(db) {
         return function(req, res) {
-            db.query('select * from Queue')
+            return db.query('select * from Queue')
             .then(results => {
                 return results.map(result => result.id);
             })

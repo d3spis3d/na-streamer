@@ -1,6 +1,7 @@
-import {getStream} from '../../js/routes/stream';
 import {expect} from 'chai';
 import sinon from 'sinon';
+
+import {getStream} from '../../js/routes/stream';
 
 describe('Stream route', function() {
     describe('getStream', function() {
