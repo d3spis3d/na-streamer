@@ -2,7 +2,8 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
 
-import {listArtists, listAlbums, listAlbumsByArtist} from '../../js/queries/list-tracks';
+import {listArtists, listAlbums, listAlbumsByArtist,
+        listSongs, listSongsByAlbum, listSongsByArtist} from '../../js/queries/list-tracks';
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
@@ -76,6 +77,81 @@ describe('listAlbumsByArtist', function() {
             expect(albumResults).to.eql([
                 { rid: '#2:1', title: 'Album One' },
                 { rid: '#2:2', title: 'Album 2' }
+            ]);
+            done();
+        });
+    });
+});
+
+describe('listSongs', function() {
+    it('should return selected attributes from all songs', function(done) {
+        const songs = [
+            { '@rid': '#3:1', title: 'Song One', number: 1, '@class': 'Song' },
+            { '@rid': '#3:2', title: 'Two', number: 2, '@class': 'Song' }
+        ];
+
+        const query = sinon.stub().returns(Promise.resolve(songs));
+        const db = {
+            query: query
+        };
+
+        const results = listSongs(db);
+
+        expect(results).to.eventually.be.fulfilled.then(function(songResults) {
+            expect(db.query.calledWith('select * from Songs'));
+            expect(songResults).to.eql([
+                { rid: '#3:1', title: 'Song One', number: 1 },
+                { rid: '#3:2', title: 'Two', number: 2 }
+            ]);
+            done();
+        });
+    });
+});
+
+describe('listSongsByAlbum', function() {
+    it('should return selected attributes from all songs by album', function(done) {
+        const songs = [
+            { '@rid': '#3:1', title: 'Song One', number: 1, '@class': 'Song' },
+            { '@rid': '#3:2', title: 'Two', number: 2, '@class': 'Song' }
+        ];
+
+        const query = sinon.stub().returns(Promise.resolve(songs));
+        const db = {
+            query: query
+        };
+
+        const results = listSongsByAlbum(db, '#2:1');
+
+        expect(results).to.eventually.be.fulfilled.then(function(songResults) {
+            expect(db.query.calledWith('select expand( in("Found_On") ) from #2:1'));
+            expect(songResults).to.eql([
+                { rid: '#3:1', title: 'Song One', number: 1 },
+                { rid: '#3:2', title: 'Two', number: 2 }
+            ]);
+            done();
+        });
+    });
+});
+
+describe('listSongsByArtist', function() {
+    it('should return selected attributes from all songs by artist', function(done) {
+        const songs = [
+            { '@rid': '#3:1', title: 'Song One', number: 1, '@class': 'Song' },
+            { '@rid': '#3:2', title: 'Two', number: 2, '@class': 'Song' }
+        ];
+
+        const query = sinon.stub().returns(Promise.resolve(songs));
+        const db = {
+            query: query
+        };
+
+        const results = listSongsByArtist(db, '#1:1');
+
+        expect(results).to.eventually.be.fulfilled.then(function(songResults) {
+            expect(db.query.calledWith('select expand( in("Recorded_By").in("Found_On") ) from #1:1'));
+            expect(songResults).to.eql([
+                { rid: '#3:1', title: 'Song One', number: 1 },
+                { rid: '#3:2', title: 'Two', number: 2 }
             ]);
             done();
         });
