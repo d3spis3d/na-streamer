@@ -13,11 +13,7 @@ export function listAlbums(db) {
 }
 
 export function listAlbumsByArtist(db, artistId) {
-    return db.query('select expand( in("Recorded_By") ) from Artist where @rid = :rid', {
-        params: {
-            rid: artistId
-        }
-    })
+    return db.query(`select expand( in("Recorded_By") ) from ${artistId}`)
     .then(results => {
         return results.map(result => ({rid: result['@rid'], title: result.title}));
     });
