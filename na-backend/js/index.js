@@ -29,10 +29,10 @@ const nextSongInQueue = setupNextSong(db, streamers);
 setupRoutes(app, db, clients, populateQueue);
 app.use(express.static('public'));
 
-const appServer = app.listen(4000, function () {
+const appServer = app.listen(config.webPort, function () {
     const host = appServer.address().address;
     const port = appServer.address().port;
 
     console.log('Example app listening at http://%s:%s', host, port);
-    const streamerServer = setupStreamServer(streamers, clients, nextSongInQueue, db);
+    const streamerServer = setupStreamServer(streamers, clients, nextSongInQueue, db, config.streamPort);
 });

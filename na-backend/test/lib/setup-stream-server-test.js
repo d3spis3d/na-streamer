@@ -47,10 +47,10 @@ describe('setupStreamServer', function() {
     });
 
     it('should create binaryjs server', function() {
-        setupStreamServer(streamers, clients, nextSongInQueue, db);
+        setupStreamServer(streamers, clients, nextSongInQueue, db, 9000);
         const expectedArgs = {port: 9000};
 
-        expect(binaryServerSpy.calledWith(expectedArgs));
+        expect(binaryServerSpy.calledWith(expectedArgs)).to.be.true;
     });
 
     it('should create functions for files, streams, clients and setup connection handler', function() {

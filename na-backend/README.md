@@ -34,5 +34,7 @@
     databaseHost: '<database-host>',
     databasePort: '7000',
     username: '<username-setup-in-xml>',
-    password: '<password-of-username>'
+    password: '<password-of-username>',
+    webPort: 4000,
+    streamPort: 9000
   };`
