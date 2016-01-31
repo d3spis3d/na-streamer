@@ -9,7 +9,10 @@ const divStyles = {
 export default class NowPlaying extends React.Component {
     render() {
         return (
-            <div style={divStyles}>Bottom</div>
+            <div style={divStyles}>
+                Bottom
+                <audio src="/stream" autoPlay></audio>
+            </div>
         );
     }
 }

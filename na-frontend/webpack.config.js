@@ -36,7 +36,7 @@ module.exports = {
 			colors: true
 		},
 		proxy: [{
-			path: "/api/*",
+			path: "/stream",
 			target: "http://127.0.0.1:4000",
 		}]
     }
