@@ -12,6 +12,18 @@ const cli = commandLineArgs([
         name: 'dir',
         alias: 'd',
         type: String
+    },
+    {
+        name: 'host',
+        alias: 'h',
+        type: String,
+        defaultValue: 'localhost'
+    },
+    {
+        name: 'port',
+        alias: 'p',
+        type: String,
+        defaultValue: 9000
     }
 ]);
 const options = cli.parse();
@@ -28,5 +40,5 @@ fs.stat(keyPath, (err, stats) => {
         const file = fs.writeFileSync(keyPath, key);
     }
 
-    startClient(filesById, options.dir, key);
+    startClient(filesById, options, key);
 });

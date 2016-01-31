@@ -11,16 +11,21 @@ import {startClient} from '../../js/lib/client';
 describe('startClient', function() {
     it('should call openStreamToServer on open event', function() {
         const filesStore = {};
-        const musicDir = ['home', 'test', 'music'].join(path.sep);
+        const options = {
+            dir: ['home', 'test', 'music'].join(path.sep),
+            host: 'localhost',
+            port: 9000
+        };
         const clientSpy = sinon.stub(binaryjs, 'BinaryClient').returns(new EventEmitter());
         const openStreamSpy = sinon.stub(openStreamToServer, 'default');
         const key = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
 
-        const client = startClient(filesStore, musicDir, key);
+        const client = startClient(filesStore, options, key);
 
         client.emit('open');
 
-        expect(openStreamSpy.calledWith(filesStore, musicDir, client, key)).to.be.true;
+        expect(clientSpy.calledWith('ws://localhost:9000'));
+        expect(openStreamSpy.calledWith(filesStore, options.dir, client, key)).to.be.true;
         openStreamToServer.default.restore();
     });
 });
