@@ -41,8 +41,8 @@ describe('createTrackStream', function() {
 
         expect(throttleSpy.calledWithNew()).to.be.true;
         expect(throttleSpy.calledWith({
-            bps: 14,
-            chunkSize: 5
+            bps: 12,
+            chunkSize: 2
         })).to.be.true;
 
         expect(sendFileData.calledWith(mockData));
@@ -71,8 +71,8 @@ describe('createTrackStream', function() {
 
         expect(throttleSpy.calledWithNew()).to.be.true;
         expect(throttleSpy.calledWith({
-            bps: 14,
-            chunkSize: 5
+            bps: 12,
+            chunkSize: 2
         })).to.be.true;
 
         expect(sendFileData.calledWith(trackId));
