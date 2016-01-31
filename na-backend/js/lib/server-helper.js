@@ -92,6 +92,23 @@ export function setupNextSong(db, streamers) {
 
             const stream = streamers[streamerKey];
             stream.write(songId.toString());
+            return db.query('select COUNT(*) as count from Queue');
+        })
+        .then(count => {
+            if (count[0].count === 1) {
+                return db.query('select * from Song');
+            }
+            return Promise.reject();
+        })
+        .then(songs => {
+            return songs.map(song => song['@rid']);
+        })
+        .then(songIds => {
+            const filesCount = songIds.length;
+            for (let i = 0; i < 3; i++) {
+                const fileNumber = Math.floor(Math.random() * filesCount);
+                db.query(`insert into Queue (id) values (${songIds[fileNumber]})`)
+            }
         });
     }
 }

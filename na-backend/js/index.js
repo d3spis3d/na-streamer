@@ -27,6 +27,7 @@ const populateQueue = setupInitQueue(db, streamers);
 const nextSongInQueue = setupNextSong(db, streamers);
 
 setupRoutes(app, db, clients, populateQueue);
+app.use(express.static('public'));
 
 const appServer = app.listen(4000, function () {
     const host = appServer.address().address;
