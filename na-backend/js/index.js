@@ -6,7 +6,7 @@ import setupStreamServer from './lib/setup-stream-server';
 import {setupInitQueue, setupNextSong} from './lib/server-helper';
 import setupRoutes from './routes/routes-setup';
 
-import config from '../config';
+import config from './config';
 
 const tracks = {};
 const clients = [];
