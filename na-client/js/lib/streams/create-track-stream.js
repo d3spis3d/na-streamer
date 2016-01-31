@@ -4,8 +4,8 @@ import Rx from 'rx';
 export default function(track, trackId, sendFileData, Throttle) {
     return function(err, results) {
         const trackStream = fs.createReadStream(track);
-        const bps = (results.format.bit_rate / 10) * 1.4;
-        const chunkSize = Math.ceil(bps / 3);
+        const bps = (results.format.bit_rate / 10) * 1.2;
+        const chunkSize = Math.ceil(bps / 10);
         const throttledStream = new Throttle({bps, chunkSize});
         trackStream.pipe(throttledStream);
 
