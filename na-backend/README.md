@@ -8,15 +8,11 @@
 
   `docker cp orientdb:/orientdb/config/orientdb-server-config.xml .`
 
-* Open up the XML file and add a user line with a new user and password, same resources as root user.
-
-* Discard current orientdb instance:
-
-  `docker stop orientdb && docker rm orientdb`
+* Open up the XML file `orientdb-server-config.xml` and add update the user and passwords.
 
 * Setup the docker image with the modified config file mapped to the container:
 
-  `docker run --name orientdb -d -v <path to config file>:/orientdb/config -p <localportnum>:2424 -p <anotherlocalportnum>:2480 orientdb/orientdb`
+  `docker run --name orientdb -d -v <path to xml config file folder>:/orientdb/config -p 7000:2424 -p 7001:2480 orientdb/orientdb`
 
 * Replace the username and password in `setup-orientdb.osql` with those in `orientdb-server-config.xml`
 
@@ -30,4 +26,13 @@
 
   `cd bin && ./console.sh setup-orientdb.osql`
 
-* Exit the docker container and confirm the music database has been created by going to the OrientDB web console at `<docker-host>:<anotherlocalportnum>` in a web browser
+* Exit the docker container and confirm the music database has been created by going to the OrientDB web console at `<docker-host>:7001` in a web browser
+
+* Create a `config.js` file with the following configuration:
+
+  `module.exports = {
+    databaseHost: '<database-host>',
+    databasePort: '7000',
+    username: '<username-setup-in-xml>',
+    password: '<password-of-username>'
+  };`
