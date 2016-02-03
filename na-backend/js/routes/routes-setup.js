@@ -2,7 +2,7 @@ import bodyParser from 'body-parser';
 
 import {getStream} from './stream';
 import {getArtists, getAlbums, getSongs} from './library';
-import {getQueue, addToQueue} from './queue';
+import {getQueue, addToQueue, removeFromQueue} from './queue';
 
 export default function(app, db, clients, populateQueue) {
     app.use(bodyParser.json());
@@ -14,4 +14,6 @@ export default function(app, db, clients, populateQueue) {
     app.get(getQueue.url, getQueue.generateHandler(db));
 
     app.post(addToQueue.url, addToQueue.generateHandler(db));
+
+    app.delete(removeFromQueue.url, removeFromQueue.generateHandler(db));
 }

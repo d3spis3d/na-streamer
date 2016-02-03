@@ -2,7 +2,7 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon'
 
-import {addToQueue, getQueue} from '../../js/routes/queue';
+import {addToQueue, getQueue, removeFromQueue} from '../../js/routes/queue';
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
@@ -118,6 +118,53 @@ describe('Queue route', function() {
                 expect(query.neverCalledWith(`select *, out('Found_On').title as album, out('Found_On').out('Recorded_By').name as artist from []`)).to.be.true;
                 expect(res.send.calledWith(JSON.stringify([]))).to.be.true;
                 done();
+            });
+        });
+    });
+
+    describe('removeFromQueue', function () {
+        it('should have the correct url', function () {
+            const expectedUrl = '/queue';
+
+            expect(removeFromQueue.url).to.equal(expectedUrl);
+        });
+
+        it('should return a function from generateHandler', function () {
+            const db = {};
+
+            const results = removeFromQueue.generateHandler(db);
+            expect(results).to.be.a('function');
+        });
+
+        it('should generate a handler that deletes from the queue based on rid', function (done) {
+            const query = sinon.stub().returns(Promise.resolve());
+            const db = {
+                query: query
+            };
+
+            const req = {
+                body: {
+                    rid: '#13:1'
+                }
+            };
+            const res = {
+                sendStatus: sinon.stub()
+            };
+
+            const handler = removeFromQueue.generateHandler(db);
+
+            const result = handler(req, res);
+
+            expect(result).to.eventually.be.fulfilled.then(function() {
+                console.log('whattata/??');
+                expect(query.calledWith('delete from Queue where @rid = :rid', {
+                    params: {
+                        rid: req.body.rid
+                    }
+                })).to.be.true;
+                expect(res.sendStatus.calledWith(200)).to.be.true;
+                done();
+                console.log('yeeehaaa');
             });
         });
     });

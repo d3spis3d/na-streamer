@@ -31,3 +31,20 @@ export const addToQueue = {
         };
     }
 }
+
+export const removeFromQueue = {
+    url: '/queue',
+    generateHandler: function(db) {
+        return function(req, res) {
+            const rid = req.body.rid;
+            return db.query('delete from Queue where @rid = :rid', {
+                params: {
+                    rid: rid
+                }
+            })
+            .then(() => {
+                res.sendStatus(200);
+            });
+        };
+    }
+}
