@@ -13,6 +13,17 @@ export const getQueue = {
                 return [];
             })
             .then(results => {
+                return results.map(result => {
+                    return {
+                        title: result.title,
+                        id: result.id,
+                        album: result.album[0],
+                        artist: result.artist[0],
+                        rid: result['@rid']
+                    };
+                });
+            })
+            .then(results => {
                 res.send(JSON.stringify(results));
             });
         };
