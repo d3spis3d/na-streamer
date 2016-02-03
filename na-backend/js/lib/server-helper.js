@@ -9,7 +9,6 @@ export function createStreamersUpdate(streamers) {
 
 export function setClientList(clients) {
     return function(data) {
-        console.log('received binary data');
         clients.forEach(client => {
             client.res.write(data);
         });

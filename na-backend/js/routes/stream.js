@@ -10,8 +10,15 @@ export const getStream = {
             if (!res.headers) {
                 res.writeHead(200, headers);
             }
-            clients.push({res});
+            clients.push({
+                ip: req.ip,
+                res: res
+            });
             populateQueue();
+
+            req.connection.on('close', () => {
+                clients = clients.filter(client => client.ip !== req.ip);
+            });
         };
     }
 }
