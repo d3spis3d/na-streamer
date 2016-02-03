@@ -17,7 +17,15 @@ export const getStream = {
             populateQueue();
 
             req.connection.on('close', () => {
-                clients = clients.filter(client => client.ip !== req.ip);
+                let indices = [];
+                clients.forEach((client, i) => {
+                    if (client.ip === req.ip) {
+                        indices.push(i);
+                    }
+                });
+                indices.forEach(i => {
+                    clients.splice(i);
+                });
             });
         };
     }
