@@ -4,6 +4,7 @@ import {getStream} from './stream';
 import {getArtists, getAlbums, getSongs} from './library';
 import {getQueue, addToQueue, removeFromQueue} from './queue';
 import {getClients} from './clients';
+import {getNowPlaying} from './now-playing';
 
 export default function(app, db, clients, populateQueue) {
     app.use(bodyParser.json());
@@ -14,6 +15,7 @@ export default function(app, db, clients, populateQueue) {
     app.get(getSongs.url, getSongs.generateHandler(db));
     app.get(getQueue.url, getQueue.generateHandler(db));
     app.get(getClients.url, getClients.generateHandler(clients));
+    app.get(getNowPlaying.url, getNowPlaying.generateHandler(db));
 
     app.post(addToQueue.url, addToQueue.generateHandler(db));
 

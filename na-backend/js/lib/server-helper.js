@@ -67,14 +67,23 @@ export function setupInitQueue(db, streamers) {
 
             const fileNumber = Math.floor(Math.random() * filesCount);
             const firstSong = songs[fileNumber];
-            return db.query(`select *, out("Hosted_On").key as key from ${firstSong}`);
+            return db.query(`select *, out("Hosted_On").key as key, out('Found_On').title as album, out('Found_On').out('Recorded_By').name as artist from ${firstSong}`);
         })
         .then(results => {
-            const streamerKey = results[0].key[0];
-            const songId = results[0].id;
+            const result = results[0];
 
+            const streamerKey = result.key[0];
+            const songId = result.id;
             const stream = streamers[streamerKey];
             stream.write(songId.toString());
+
+            return db.query(`insert into Now_Playing (title, album, artist) values (:title, :album, :artist)`, {
+                params: {
+                    title: result.title,
+                    album: result.album[0],
+                    artist: result.artist[0]
+                }
+            });
         })
         .catch((err) => {
             console.log(err);
@@ -86,14 +95,28 @@ export function setupNextSong(db, streamers) {
     return function() {
         db.query('delete vertex Queue return before limit 1')
         .then(results => {
-            return db.query(`select *, out("Hosted_On").key as key from ${results[0].id}`)
+            return db.query(`select *, out("Hosted_On").key as key, out('Found_On').title as album, out('Found_On').out('Recorded_By').name as artist from ${results[0].id}`)
         })
         .then(results => {
-            const streamerKey = results[0].key[0];
-            const songId = results[0].id;
+            const result = results[0];
 
+            const streamerKey = result.key[0];
+            const songId = result.id;
             const stream = streamers[streamerKey];
             stream.write(songId.toString());
+
+            return db.query(`insert into Now_Playing (title, album, artist) values (:title, :album, :artist)`, {
+                params: {
+                    title: result.title,
+                    album: result.album[0],
+                    artist: result.artist[0]
+                }
+            });
+        })
+        .then(() => {
+            return db.query('delete vertex Now_Playing limit 1');
+        })
+        .then(() => {
             return db.query('select COUNT(*) as count from Queue');
         })
         .then(count => {
