@@ -75,6 +75,9 @@ export function setupInitQueue(db, streamers) {
 
             const stream = streamers[streamerKey];
             stream.write(songId.toString());
+        })
+        .catch((err) => {
+            console.log(err);
         });
     };
 }
