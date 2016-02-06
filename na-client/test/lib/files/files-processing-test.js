@@ -19,11 +19,13 @@ describe('setupFilePathProcessor', function() {
 
     const key = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
     const mockHostedTracks = {
-        'Artist': {
-            'Album': {
-                '01': {
-                    title: 'Song Title',
-                    id: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+        'Genre': {
+            'Artist': {
+                'Album': {
+                    '01': {
+                        title: 'Song Title',
+                        id: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+                    }
                 }
             }
         }
@@ -66,14 +68,15 @@ describe('setupFilePathProcessor', function() {
 
     it('should create processor that processes files and sends data', function() {
         const processFiles = setupFilePathProcessor(sendFileData, processTracks, musicDir, key);
-        const files = [['home', 'music', 'Artist', 'Album', '01-Song Title.mp3'].join(path.sep)];
+        const files = [['home', 'music', 'Genre', 'Artist', 'Album', '01-Song Title.mp3'].join(path.sep)];
 
         processFiles(null, files);
 
         const expectedTracks = [{
+            genre: 'Genre',
             artist: 'Artist',
             album: 'Album',
-            file: ['home', 'music', 'Artist', 'Album', '01-Song Title.mp3'].join(path.sep),
+            file: ['home', 'music', 'Genre', 'Artist', 'Album', '01-Song Title.mp3'].join(path.sep),
             number: '01',
             title: 'Song Title',
             id: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
@@ -83,16 +86,19 @@ describe('setupFilePathProcessor', function() {
         expect(sendFileData.calledWith({
             key: key,
             tracks: {
-                'Artist': {
-                    'Album': {
-                        '01': {
-                            title: 'Song Title',
-                            id: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+                'Genre': {
+                    'Artist': {
+                        'Album': {
+                            '01': {
+                                title: 'Song Title',
+                                id: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+                            }
                         }
                     }
                 }
             }
         })).to.be.true;
+        console.log(sendFileData.firstCall.args);
     })
 });
 
@@ -106,15 +112,17 @@ describe('setupFileWatcher', function() {
 
     const key = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
     const mockHostedTracks = {
-        'Artist': {
-            'Album': {
-                '01': {
-                    title: 'Song Title',
-                    id: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx'
-                },
-                '02': {
-                    title: 'Song Two',
-                    id: 'yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyy'
+        'Genre': {
+            'Artist': {
+                'Album': {
+                    '01': {
+                        title: 'Song Title',
+                        id: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx'
+                    },
+                    '02': {
+                        title: 'Song Two',
+                        id: 'yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyy'
+                    }
                 }
             }
         }
@@ -155,13 +163,13 @@ describe('setupFileWatcher', function() {
 
         fileWatchHandler(monitor);
 
-        monitor.emit('created', ['home', 'music', 'Artist', 'Album', '01-Song Title.mp3'].join(path.sep));
-        monitor.emit('created', ['home', 'music', 'Artist', 'Album', '02-Song Two.mp3'].join(path.sep));
+        monitor.emit('created', ['home', 'music', 'Genre', 'Artist', 'Album', '01-Song Title.mp3'].join(path.sep));
+        monitor.emit('created', ['home', 'music', 'Genre', 'Artist', 'Album', '02-Song Two.mp3'].join(path.sep));
 
         setTimeout(function() {
             const expectedTracks = [
-                {artist: 'Artist', album: 'Album', number: '01', title: 'Song Title', id: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', file: ['home', 'music', 'Artist', 'Album', '01-Song Title.mp3'].join(path.sep)},
-                {artist: 'Artist', album: 'Album', number: '02', title: 'Song Two', id: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', file: ['home', 'music', 'Artist', 'Album', '02-Song Two.mp3'].join(path.sep)}
+                {genre: 'Genre', artist: 'Artist', album: 'Album', number: '01', title: 'Song Title', id: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', file: ['home', 'music', 'Genre', 'Artist', 'Album', '01-Song Title.mp3'].join(path.sep)},
+                {genre: 'Genre', artist: 'Artist', album: 'Album', number: '02', title: 'Song Two', id: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', file: ['home', 'music', 'Genre', 'Artist', 'Album', '02-Song Two.mp3'].join(path.sep)}
             ];
 
             expect(processTracks.args[0][0]).to.eql(expectedTracks);
@@ -169,15 +177,17 @@ describe('setupFileWatcher', function() {
             expect(sendFileData.calledWith({
                 key: key,
                 tracks: {
-                    'Artist': {
-                        'Album': {
-                            '01': {
-                                title: 'Song Title',
-                                id: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx'
-                            },
-                            '02': {
-                                title: 'Song Two',
-                                id: 'yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyy'
+                    'Genre': {
+                        'Artist': {
+                            'Album': {
+                                '01': {
+                                    title: 'Song Title',
+                                    id: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx'
+                                },
+                                '02': {
+                                    title: 'Song Two',
+                                    id: 'yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyy'
+                                }
                             }
                         }
                     }

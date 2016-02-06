@@ -27,9 +27,10 @@ describe('extractTrack', function() {
 
     it('should correctly extract track data from file path', function() {
         const musicDir = ['home', 'test', 'music'].join(path.sep);
-        const input = ['home', 'test', 'music', 'Artist', 'Album', '01-Song Title.mp3'].join(path.sep);
+        const input = ['home', 'test', 'music', 'Genre', 'Artist', 'Album', '01-Song Title.mp3'].join(path.sep);
 
         const expectedResult = {
+            genre: 'Genre',
             artist: 'Artist',
             album: 'Album',
             file: input,
@@ -41,6 +42,7 @@ describe('extractTrack', function() {
         const func = extractTrack(musicDir);
         const result = func(input);
 
+        expect(result.genre).to.equal(expectedResult.genre);
         expect(result.artist).to.equal(expectedResult.artist);
         expect(result.album).to.equal(expectedResult.album);
         expect(result.file).to.equal(expectedResult.file);
@@ -53,6 +55,7 @@ describe('extractTrack', function() {
 describe('buildFileInfoForBackend', function() {
     it('should build file map from empty object', function() {
         const input = {
+            genre: 'Genre',
             artist: 'Artist',
             album: 'Album',
             number: '01',
@@ -61,11 +64,13 @@ describe('buildFileInfoForBackend', function() {
         };
 
         const expectedResults = {
-            Artist: {
-                Album: {
-                    '01': {
-                        id: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx',
-                        title: 'Song Title'
+            Genre: {
+                Artist: {
+                    Album: {
+                        '01': {
+                            id: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx',
+                            title: 'Song Title'
+                        }
                     }
                 }
             }
@@ -77,6 +82,7 @@ describe('buildFileInfoForBackend', function() {
 
     it('should build file map with object containing artist tracks', function() {
         const input = {
+            genre: 'Genre',
             artist: 'Artist',
             album: 'Album',
             number: '02',
@@ -84,26 +90,30 @@ describe('buildFileInfoForBackend', function() {
             id: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx'
         };
         const mapInput = {
-            Artist: {
-                Album: {
-                    '01': {
-                        id: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx',
-                        title: 'Song Title'
+            Genre: {
+                Artist: {
+                    Album: {
+                        '01': {
+                            id: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx',
+                            title: 'Song Title'
+                        }
                     }
                 }
             }
         };
 
         const expectedResults = {
-            Artist: {
-                Album: {
-                    '01': {
-                        id: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx',
-                        title: 'Song Title'
-                    },
-                    '02': {
-                        id: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx',
-                        title: 'Another Song'
+            Genre: {
+                Artist: {
+                    Album: {
+                        '01': {
+                            id: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx',
+                            title: 'Song Title'
+                        },
+                        '02': {
+                            id: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx',
+                            title: 'Another Song'
+                        }
                     }
                 }
             }
@@ -115,6 +125,7 @@ describe('buildFileInfoForBackend', function() {
 
     it('should build file map with object containing other artists', function() {
         const input = {
+            genre: 'Genre',
             artist: 'Artist2',
             album: 'AlbumZ',
             number: '01',
@@ -122,30 +133,34 @@ describe('buildFileInfoForBackend', function() {
             id: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx'
         };
         const mapInput = {
-            Artist: {
-                Album: {
-                    '01': {
-                        id: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx',
-                        title: 'Song Title'
+            Genre: {
+                Artist: {
+                    Album: {
+                        '01': {
+                            id: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx',
+                            title: 'Song Title'
+                        }
                     }
                 }
             }
         };
 
         const expectedResults = {
-            Artist: {
-                Album: {
-                    '01': {
-                        id: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx',
-                        title: 'Song Title'
+            Genre: {
+                Artist: {
+                    Album: {
+                        '01': {
+                            id: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx',
+                            title: 'Song Title'
+                        }
                     }
-                }
-            },
-            Artist2: {
-                AlbumZ: {
-                    '01': {
-                        id: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx',
-                        title: 'Test Song'
+                },
+                Artist2: {
+                    AlbumZ: {
+                        '01': {
+                            id: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx',
+                            title: 'Test Song'
+                        }
                     }
                 }
             }
