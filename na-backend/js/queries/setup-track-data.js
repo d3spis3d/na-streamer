@@ -16,6 +16,24 @@ export function createStreamer(db, streamerKey) {
     })
 }
 
+export function createGenre(db, genre) {
+    return db.query('select * from Genre where name=:name', {
+        params: {
+            name: genre
+        }
+    })
+    .then(genreResults => {
+        if (genreResults.length) {
+            return;
+        }
+        return db.query('insert into Genre (name) values (:name)', {
+            params: {
+                name: genre
+            }
+        });
+    });
+}
+
 export function createArtist(db, artist) {
     return db.query('select * from Artist where name=:name', {
         params: {
@@ -32,6 +50,27 @@ export function createArtist(db, artist) {
             }
         });
     });
+}
+
+export function createGenreArtist(db, genre, artist) {
+    return db.let('firstVertex', s => {
+        s.select()
+        .from('Genre')
+        .where({'name': genre});
+    })
+    .let('secondVertex', s => {
+        s.select()
+        .from('Artist')
+        .where({'name': artist});
+    })
+    .let('joiningEdge', s => {
+        s.create('edge', 'Classified_As')
+        .from('$secondVertex')
+        .to('$firstVertex');
+    })
+    .commit()
+    .return('$firstVertex')
+    .all()
 }
 
 export function createAlbum(db, albumName) {

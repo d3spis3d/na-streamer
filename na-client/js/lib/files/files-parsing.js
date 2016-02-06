@@ -5,10 +5,11 @@ import uuid from 'node-uuid';
 
 export default function(musicDir) {
     return function(file) {
-        const [artist, album, songFile] = path.relative(musicDir, file).split(path.sep);
+        const [genre, artist, album, songFile] = path.relative(musicDir, file).split(path.sep);
         const id = crypto.createHash('sha256').update(file).digest('hex');
         const {number, title} = createTrackData(songFile);
         return {
+            genre,
             artist,
             album,
             file,
@@ -28,8 +29,9 @@ export function createTrackData(songFile) {
 }
 
 export function buildFileInfoForBackend(map, track) {
-    map[track.artist] = map[track.artist] || {};
-    map[track.artist][track.album] = map[track.artist][track.album] || {};
-    map[track.artist][track.album][track.number] = {id: track.id, title: track.title};
+    map[track.genre] = map[track.genre] || {};
+    map[track.genre][track.artist] = map[track.genre][track.artist] || {};
+    map[track.genre][track.artist][track.album] = map[track.genre][track.artist][track.album] || {};
+    map[track.genre][track.artist][track.album][track.number] = {id: track.id, title: track.title};
     return map;
 }

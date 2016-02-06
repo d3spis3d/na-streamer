@@ -1,5 +1,6 @@
 import {createArtist, createAlbum, createAlbumArtist, createSong,
-        createStreamer, associateSongAndStreamer} from '../queries/setup-track-data';
+        createStreamer, associateSongAndStreamer,
+        createGenre, createGenreArtist} from '../queries/setup-track-data';
 
 export function createStreamersUpdate(streamers) {
     return function(streamerId, stream) {
@@ -22,19 +23,27 @@ export function setTrackListingMap(db) {
 
         createStreamer(db, key)
         .then(() => {
-            for (let artist in trackData) {
-                createArtist(db, artist)
+            for (let genre in trackData) {
+                createGenre(db, genre)
                 .then(() => {
-                    for (let albumName in trackData[artist]) {
-                        createAlbum(db, albumName)
+                    for (let artist in trackData[genre]) {
+                        createArtist(db, artist)
                         .then(() => {
-                            createAlbumArtist(db, artist, albumName)
-                            .then(() => {
-                                const album = trackData[artist][albumName];
-                                for (let track in album) {
-                                    createSong(db, albumName, album[track])
-                                    .then((response) => {
-                                        associateSongAndStreamer(db, response[0]['@rid'], key);
+                            createGenreArtist(db, genre, artist)
+                            .then((genreArtist) => {
+                                for (let albumName in trackData[genre][artist]) {
+                                    createAlbum(db, albumName)
+                                    .then(() => {
+                                        createAlbumArtist(db, artist, albumName)
+                                        .then(() => {
+                                            const album = trackData[genre][artist][albumName];
+                                            for (let track in album) {
+                                                createSong(db, albumName, album[track])
+                                                .then((response) => {
+                                                    associateSongAndStreamer(db, response[0]['@rid'], key);
+                                                });
+                                            }
+                                        });
                                     });
                                 }
                             });
@@ -42,7 +51,7 @@ export function setTrackListingMap(db) {
                     }
                 });
             }
-        })
+        });
     };
 }
 
