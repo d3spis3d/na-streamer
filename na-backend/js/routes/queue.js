@@ -48,7 +48,7 @@ export const removeFromQueue = {
     generateHandler: function(db) {
         return function(req, res) {
             const rid = req.body.rid;
-            return db.query('delete from Queue where @rid = :rid', {
+            return db.query('delete vertex from Queue where id = :rid', {
                 params: {
                     rid: rid
                 }

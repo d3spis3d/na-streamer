@@ -161,7 +161,7 @@ describe('Queue route', function() {
             const result = handler(req, res);
 
             expect(result).to.eventually.be.fulfilled.then(function() {
-                expect(query.calledWith('delete from Queue where @rid = :rid', {
+                expect(query.calledWith('delete vertex from Queue where id = :rid', {
                     params: {
                         rid: req.body.rid
                     }
