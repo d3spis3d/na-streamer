@@ -2,31 +2,21 @@
 
 ## Steps for setting up OrientDB docker
 
-1. First step need to copy config from an OrientDB instance:
-
-  `docker run --name orientdb -d orientdb/orientdb`
-
-  `docker cp orientdb:/orientdb/config/orientdb-server-config.xml .`
-
-* Open up the XML file `orientdb-server-config.xml` and add update the user and passwords.
+1. Open up the XML file `orientdb-server-config.xml` and add update the user and passwords. Move this file to a new directory.
 
 * Setup the docker image with the modified config file mapped to the container:
 
   `docker run --name orientdb -d -v <path to xml config file folder>:/orientdb/config -p 7000:2424 -p 7001:2480 orientdb/orientdb`
 
-* Replace the username and password in `setup-orientdb.osql` with those in `orientdb-server-config.xml`
+* Create the database using orientjs client:
 
-* Copy the setup script to the docker container:
+  `node_modules/orientjs/bin/orientjs --host=<docker-host> --port=7000 --user=<created-user> --password=<created-password> db create music graph memory`
 
-  `docker cp ./na-backend/setup-orientdb.osql orientdb:/orientdb/bin/`
+* Run the migrations:
 
-* Exec the script from within the container:
+  `node_modules/orientjs/bin/orientjs --host=<docker-host> --port=7000 --user=<created-user> --password=<created-password> --dbname=music migrate up`
 
-  `docker exec -it orientdb /bin/bash`
-
-  `cd bin && ./console.sh setup-orientdb.osql`
-
-* Exit the docker container and confirm the music database has been created by going to the OrientDB web console at `<docker-host>:7001` in a web browser
+* Confirm the music database has been created and migrated by going to the OrientDB web console at `<docker-host>:7001` in a web browser
 
 * Create a `config.js` file with the following configuration:
 
