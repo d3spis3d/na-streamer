@@ -6,13 +6,12 @@ import {expect} from 'chai';
 import path from 'path';
 import sinon from 'sinon';
 
-import {buildFileInfoForBackend} from '../../../js/lib/files/files-parsing';
 import {setupFilePathProcessor, setupFileWatcher} from '../../../js/lib/files/files-processing';
 
 describe('setupFilePathProcessor', function() {
     let sendFileData;
-    let processTracks;
     let musicDir;
+    let filesStore;
     let updateHash;
     let digestHash;
     let hash;
@@ -34,7 +33,7 @@ describe('setupFilePathProcessor', function() {
 
     beforeEach(function() {
         sendFileData = sinon.spy();
-        processTracks = sinon.stub().returns(mockHostedTracks);
+        filesStore = {};
         musicDir = ['home', 'music'].join(path.sep);
         digestHash = {
             digest: sinon.stub().returns('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
@@ -47,27 +46,25 @@ describe('setupFilePathProcessor', function() {
 
     afterEach(function() {
         sendFileData = null;
-        processTracks = null;
         crypto.createHash.restore();
     });
 
     it('should return a function', function() {
-        const results = setupFilePathProcessor(sendFileData, processTracks, musicDir, key);
+        const results = setupFilePathProcessor(sendFileData, filesStore, musicDir, key);
 
         expect(results).to.be.a('function');
     });
 
     it('should create processor that does not send data on err', function() {
-        const processFiles = setupFilePathProcessor(sendFileData, processTracks, musicDir, key);
+        const processFiles = setupFilePathProcessor(sendFileData, filesStore, musicDir, key);
 
         processFiles('Error', []);
 
         expect(sendFileData.called).to.be.false;
-        expect(processTracks.called).to.be.false;
     });
 
     it('should create processor that processes files and sends data', function() {
-        const processFiles = setupFilePathProcessor(sendFileData, processTracks, musicDir, key);
+        const processFiles = setupFilePathProcessor(sendFileData, filesStore, musicDir, key);
         const files = [['home', 'music', 'Genre', 'Artist', 'Album', '01-Song Title.mp3'].join(path.sep)];
 
         processFiles(null, files);
@@ -76,35 +73,24 @@ describe('setupFilePathProcessor', function() {
             genre: 'Genre',
             artist: 'Artist',
             album: 'Album',
-            file: ['home', 'music', 'Genre', 'Artist', 'Album', '01-Song Title.mp3'].join(path.sep),
             number: '01',
             title: 'Song Title',
             id: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
         }];
 
-        expect(processTracks.calledWith(expectedTracks, sinon.match.func, {})).to.be.true;
         expect(sendFileData.calledWith({
             key: key,
-            tracks: {
-                'Genre': {
-                    'Artist': {
-                        'Album': {
-                            '01': {
-                                title: 'Song Title',
-                                id: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-                            }
-                        }
-                    }
-                }
-            }
+            tracks: expectedTracks
         })).to.be.true;
-        console.log(sendFileData.firstCall.args);
+        expect(filesStore).to.eql({
+            'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx': ['home', 'music', 'Genre', 'Artist', 'Album', '01-Song Title.mp3'].join(path.sep)
+        });
     })
 });
 
 describe('setupFileWatcher', function() {
     let sendFileData;
-    let processTracks;
+    let filesStore;
     let musicDir;
     let updateHash;
     let digestHash;
@@ -130,11 +116,14 @@ describe('setupFileWatcher', function() {
 
     beforeEach(function() {
         sendFileData = sinon.spy();
-        processTracks = sinon.stub().returns(mockHostedTracks);
+        filesStore = {};
         musicDir = ['home', 'music'].join(path.sep);
         digestHash = {
-            digest: sinon.stub().returns('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+            digest: sinon.stub()
         };
+        digestHash.digest.onFirstCall().returns('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
+        digestHash.digest.onSecondCall().returns('yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy');
+
         updateHash = {
             update: sinon.stub().returns(digestHash)
         };
@@ -146,7 +135,7 @@ describe('setupFileWatcher', function() {
     });
 
     it('should return a function', function() {
-        const results = setupFileWatcher(sendFileData, processTracks, musicDir, key);
+        const results = setupFileWatcher(sendFileData, filesStore, musicDir, key);
 
         expect(results).to.be.a('function');
     });
@@ -154,7 +143,7 @@ describe('setupFileWatcher', function() {
     it('should create watcher that handles created event', function(done) {
         this.timeout(20000);
 
-        const fileWatchHandler = setupFileWatcher(sendFileData, processTracks, musicDir, key);
+        const fileWatchHandler = setupFileWatcher(sendFileData, filesStore, musicDir, key);
 
         const monitor = new EventEmitter();
         const lstatSpy = sinon.stub(fs, 'lstatSync').returns({
@@ -168,30 +157,17 @@ describe('setupFileWatcher', function() {
 
         setTimeout(function() {
             const expectedTracks = [
-                {genre: 'Genre', artist: 'Artist', album: 'Album', number: '01', title: 'Song Title', id: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', file: ['home', 'music', 'Genre', 'Artist', 'Album', '01-Song Title.mp3'].join(path.sep)},
-                {genre: 'Genre', artist: 'Artist', album: 'Album', number: '02', title: 'Song Two', id: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', file: ['home', 'music', 'Genre', 'Artist', 'Album', '02-Song Two.mp3'].join(path.sep)}
+                {genre: 'Genre', artist: 'Artist', album: 'Album', number: '01', title: 'Song Title', id: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'},
+                {genre: 'Genre', artist: 'Artist', album: 'Album', number: '02', title: 'Song Two', id: 'yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy'}
             ];
 
-            expect(processTracks.args[0][0]).to.eql(expectedTracks);
-            expect(processTracks.calledWith(expectedTracks, buildFileInfoForBackend, {})).to.be.true;
+            expect(filesStore).to.eql({
+                'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx': ['home', 'music', 'Genre', 'Artist', 'Album', '01-Song Title.mp3'].join(path.sep),
+                'yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy': ['home', 'music', 'Genre', 'Artist', 'Album', '02-Song Two.mp3'].join(path.sep)
+            });
             expect(sendFileData.calledWith({
                 key: key,
-                tracks: {
-                    'Genre': {
-                        'Artist': {
-                            'Album': {
-                                '01': {
-                                    title: 'Song Title',
-                                    id: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx'
-                                },
-                                '02': {
-                                    title: 'Song Two',
-                                    id: 'yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyy'
-                                }
-                            }
-                        }
-                    }
-                }
+                tracks: expectedTracks
             })).to.be.true;
             done();
         }, 10500);

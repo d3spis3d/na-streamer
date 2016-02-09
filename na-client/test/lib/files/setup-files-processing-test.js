@@ -43,7 +43,7 @@ describe('setupFilesProcessing', function() {
         expect(dirSpy.calledWith(musicDir, filePathProcessor)).to.be.true;
         expect(watchSpy.calledWith(musicDir, fileWatcher)).to.be.true;
 
-        expect(filePathSpy.calledWith(sendFileData, sinon.match.func, musicDir, key)).to.be.true;
-        expect(fileWatcherSpy.calledWith(sendFileData, sinon.match.func, musicDir, key)).to.be.true;
+        expect(filePathSpy.calledWith(sendFileData, filesStore, musicDir, key)).to.be.true;
+        expect(fileWatcherSpy.calledWith(sendFileData, filesStore, musicDir, key)).to.be.true;
     });
 });
