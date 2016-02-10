@@ -34,7 +34,7 @@ export function createGenre(db, genre) {
     });
 }
 
-export function createArtist(db, artist) {
+export function createArtist(db, artist, genre) {
     return db.query('select * from Artist where name=:name', {
         params: {
             name: artist
@@ -44,86 +44,72 @@ export function createArtist(db, artist) {
         if (artistResults.length) {
             return;
         }
-        return db.query('insert into Artist (name) values (:name)', {
-            params: {
+        return db.let('firstVertex', s => {
+            s.select()
+            .from('Genre')
+            .where({'name': genre});
+        })
+        .let('secondVertex', s => {
+            s.create('vertex', 'Artist')
+            .set({
                 name: artist
-            }
-        });
+            });
+        })
+        .let('joiningEdge', s => {
+            s.create('edge', 'Classified_As')
+            .from('$secondVertex')
+            .to('$firstVertex');
+        })
+        .commit()
+        .return('$firstVertex')
+        .all();
     });
 }
 
-export function createGenreArtist(db, genre, artist) {
-    return db.let('firstVertex', s => {
-        s.select()
-        .from('Genre')
-        .where({'name': genre});
-    })
-    .let('secondVertex', s => {
-        s.select()
-        .from('Artist')
-        .where({'name': artist});
-    })
-    .let('joiningEdge', s => {
-        s.create('edge', 'Classified_As')
-        .from('$secondVertex')
-        .to('$firstVertex');
-    })
-    .commit()
-    .return('$firstVertex')
-    .all()
-}
-
-export function createAlbum(db, albumName) {
+export function createAlbum(db, album, artist) {
     return db.query('select * from Album where title=:title', {
         params: {
-            title: albumName
+            title: album
         }
     })
     .then(albumResults => {
         if (albumResults.length) {
             return
         }
-        return db.query('insert into Album (title) values (:title)', {
-            params: {
-                title: albumName
-            }
-        });
+        return db.let('firstVertex', s => {
+            s.create('vertex', 'Album')
+            .set({
+                title: album
+            });
+        })
+        .let('secondVertex', s => {
+            s.select()
+            .from('Artist')
+            .where({'name': artist});
+        })
+        .let('joiningEdge', s => {
+            s.create('edge', 'Recorded_By')
+            .from('$firstVertex')
+            .to('$secondVertex');
+        })
+        .commit()
+        .return('$firstVertex')
+        .all();
     });
 }
 
-export function createAlbumArtist(db, artist, albumName) {
+export function createSong(db, title, number, id, album) {
     return db.let('firstVertex', s => {
         s.select()
         .from('Album')
-        .where({'title': albumName});
-    })
-    .let('secondVertex', s => {
-        s.select()
-        .from('Artist')
-        .where({'name': artist});
-    })
-    .let('joiningEdge', s => {
-        s.create('edge', 'Recorded_By')
-        .from('$firstVertex')
-        .to('$secondVertex');
-    })
-    .commit()
-    .return('$firstVertex')
-    .all()
-}
-
-export function createSong(db, albumName, song) {
-    return db.let('firstVertex', s => {
-        s.select()
-        .from('Album')
-        .where({'title': albumName});
+        .where({'title': album});
     })
     .let('secondVertex', s => {
         s.create('vertex', 'Song')
         .set({
-            title: song.title,
-            number: song.number,
-            id: song.id
+            title,
+            number,
+            id
         });
     })
     .let('joiningEdge', s => {
@@ -136,7 +122,7 @@ export function createSong(db, albumName, song) {
     .all();
 }
 
-export function associateSongAndStreamer(db, rid, key) {
+export function associateSongAndStreamer(db, id, key) {
     return db.let('firstVertex', s => {
         s.select()
         .from('Streamer')
@@ -145,7 +131,7 @@ export function associateSongAndStreamer(db, rid, key) {
     .let('secondVertex', s => {
         s.select()
         .from('Song')
-        .where({'@rid': rid});
+        .where({'id': id});
     })
     .let('joiningEdge', s => {
         s.create('edge', 'Hosted_On')

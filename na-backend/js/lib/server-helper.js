@@ -23,34 +23,24 @@ export function setTrackListingMap(db) {
 
         createStreamer(db, key)
         .then(() => {
-            for (let genre in trackData) {
-                createGenre(db, genre)
-                .then(() => {
-                    for (let artist in trackData[genre]) {
-                        createArtist(db, artist)
-                        .then(() => {
-                            createGenreArtist(db, genre, artist)
-                            .then((genreArtist) => {
-                                for (let albumName in trackData[genre][artist]) {
-                                    createAlbum(db, albumName)
-                                    .then(() => {
-                                        createAlbumArtist(db, artist, albumName)
-                                        .then(() => {
-                                            const album = trackData[genre][artist][albumName];
-                                            for (let track in album) {
-                                                createSong(db, albumName, album[track])
-                                                .then((response) => {
-                                                    associateSongAndStreamer(db, response[0]['@rid'], key);
-                                                });
-                                            }
-                                        });
-                                    });
-                                }
-                            });
-                        });
-                    }
-                });
-            }
+            const genres = trackData.genres.map(genre => createGenre(db, genre.name));
+            return Promise.all(genres);
+        })
+        .then(() => {
+            const artists = trackData.artists.map(artist => createArtist(db, artist.name, artist.genre));
+            return Promise.all(artists);
+        })
+        .then(() => {
+            const albums = trackData.albums.map(album => createAlbum(db, album.title, album.artist));
+            return Promise.all(albums);
+        })
+        .then(() => {
+            const songs = trackData.songs.map(song => createSong(db, song.title, song.number, song.id, song.album));
+            return Promise.all(songs);
+        })
+        .then(() => {
+            const songs = trackData.songs.map(song => associateSongAndStreamer(db, song.id, key));
+            return Promise.all(songs);
         });
     };
 }
