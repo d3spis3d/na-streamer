@@ -6,7 +6,7 @@ import extractTrack, {buildFileInfoForBackend} from './files-parsing';
 
 const CLIENT_KEYFILE = '.clientkey';
 
-export function setupFilePathProcessor(sendFileData, processTracks, musicDir, key) {
+export function setupFilePathProcessor(sendFileData, musicDir, key) {
     return function(err, files) {
         if (err) {
             console.log(err);
@@ -79,7 +79,7 @@ export function setupFilePathProcessor(sendFileData, processTracks, musicDir, ke
     };
 }
 
-export function setupFileWatcher(sendFileData, processTracks, musicDir, key) {
+export function setupFileWatcher(sendFileData, musicDir, key) {
     return function(monitor) {
         Rx.Observable.fromEvent(monitor, 'created')
             .filter((file) => {
@@ -88,7 +88,59 @@ export function setupFileWatcher(sendFileData, processTracks, musicDir, key) {
             .bufferWithTime(10000)
             .map((files) => {
                 const tracks = files.map(extractTrack(musicDir));
-                return processTracks(tracks, buildFileInfoForBackend, {});;
+                const songs = tracks.map(track => {
+                    return {
+                        title: track.title,
+                        number: track.number,
+                        id: track.id,
+                        album: track.album
+                    };
+                });
+
+                const albums = tracks.reduce((map, track) => {
+                    map[track.album] = map[track.album] || {
+                        title: track.album,
+                        artist: track.artist,
+                    };
+                    return map;
+                }, {});
+
+                const artists = tracks.reduce((map, track) => {
+                    map[track.artist] = map[track.artist] || {
+                        name: track.artist,
+                        genre: track.genre,
+                    };
+                    return map;
+                }, {});
+
+                const genres = tracks.reduce((map, track) => {
+                    map[track.genre] = map[track.genre] || {
+                        name: track.genre,
+                    };
+                    return map;
+                }, {});
+
+                const hostedTracks = {
+                    genres: [],
+                    artists: [],
+                    albums: [],
+                    songs: songs
+                };
+
+                for (let albumName in albums) {
+                    const album = albums[albumName];
+                    hostedTracks.albums.push(album);
+                }
+
+                for (let artistName in artists) {
+                    const artist = artists[artistName];
+                    hostedTracks.artists.push(artist);
+                }
+
+                for (let genreName in genres) {
+                    const genre = genres[genreName];
+                    hostedTracks.genres.push(genre);
+                }
             })
             .subscribe((tracks) => {
                 if (Object.keys(tracks).length > 0) {
