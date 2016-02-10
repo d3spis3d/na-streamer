@@ -141,9 +141,11 @@ export function setupFileWatcher(sendFileData, musicDir, key) {
                     const genre = genres[genreName];
                     hostedTracks.genres.push(genre);
                 }
+
+                return hostedTracks;
             })
             .subscribe((tracks) => {
-                if (Object.keys(tracks).length > 0) {
+                if (tracks.songs.length > 0) {
                     sendFileData({
                         key: key,
                         tracks: tracks

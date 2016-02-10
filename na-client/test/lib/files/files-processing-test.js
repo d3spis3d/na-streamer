@@ -80,17 +80,18 @@ describe('setupFilePathProcessor', function() {
         expect(sendFileData.calledWith({
             key: key,
             tracks: {
-                genres: ['Genre'],
-                artists: ['Artist'],
-                albums: ['Album'],
+                genres: [{name: 'Genre'}],
+                artists: [{name: 'Artist', genre: 'Genre'}],
+                albums: [{title: 'Album', artist: 'Artist'}],
                 songs: [{
                     title: 'Song Title',
                     id: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-                    number: '01'
+                    number: '01',
+                    album: 'Album'
                 }]
             }
         })).to.be.true;
-    })
+    });
 });
 
 describe('setupFileWatcher', function() {
@@ -164,19 +165,21 @@ describe('setupFileWatcher', function() {
             expect(sendFileData.calledWith({
                 key: key,
                 tracks: {
-                    genres: ['Genre'],
-                    artists: ['Artist'],
-                    albums: ['Album'],
+                    genres: [{name: 'Genre'}],
+                    artists: [{name: 'Artist', genre: 'Genre'}],
+                    albums: [{title: 'Album', artist: 'Artist'}],
                     songs: [
                         {
                             title: 'Song Title',
-                            id: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx',
-                            number: '01'
+                            id: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+                            number: '01',
+                            album: 'Album'
                         },
                         {
                             title: 'Song Two',
-                            id: 'yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyy',
-                            number: '02'
+                            id: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+                            number: '02',
+                            album: 'Album'
                         }
                     ]
                 }
