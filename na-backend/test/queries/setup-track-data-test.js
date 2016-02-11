@@ -127,9 +127,22 @@ describe('createArtist', function () {
             expect(db.query.callCount).to.equal(1);
             expect(db.query.calledWith('select * from Artist where name=:name', {params: {name: artist}}));
             expect(db.let.callCount).to.equal(3);
-            expect(db.let.calledWith('firstVertex', sinon.match.func)).to.be.true;
-            expect(db.let.calledWith('secondVertex', sinon.match.func)).to.be.true;
-            expect(db.let.calledWith('joiningEdge', sinon.match.func)).to.be.true;
+            expect(db.let.calledWith('firstVertex', s => {
+                s.select()
+                .from('Genre')
+                .where({'name': genre});
+            })).to.be.true;
+            expect(db.let.calledWith('secondVertex', s => {
+                s.create('vertex', 'Artist')
+                .set({
+                    name: artist
+                });
+            })).to.be.true;
+            expect(db.let.calledWith('joiningEdge', s => {
+                s.create('edge', 'Classified_As')
+                .from('$secondVertex')
+                .to('$firstVertex');
+            })).to.be.true;
             expect(db.commit.called).to.be.true;
             expect(db.return.calledWith('$firstVertex')).to.be.true;
             expect(db.all.called).to.be.true;
