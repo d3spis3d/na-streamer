@@ -2,7 +2,8 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
 
-import {createStreamer, createGenre, createArtist} from '../../js/queries/setup-track-data';
+import {createStreamer, createGenre, createArtist,
+        createAlbum} from '../../js/queries/setup-track-data';
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
@@ -127,22 +128,60 @@ describe('createArtist', function () {
             expect(db.query.callCount).to.equal(1);
             expect(db.query.calledWith('select * from Artist where name=:name', {params: {name: artist}}));
             expect(db.let.callCount).to.equal(3);
-            expect(db.let.calledWith('firstVertex', s => {
-                s.select()
-                .from('Genre')
-                .where({'name': genre});
-            })).to.be.true;
-            expect(db.let.calledWith('secondVertex', s => {
-                s.create('vertex', 'Artist')
-                .set({
-                    name: artist
-                });
-            })).to.be.true;
-            expect(db.let.calledWith('joiningEdge', s => {
-                s.create('edge', 'Classified_As')
-                .from('$secondVertex')
-                .to('$firstVertex');
-            })).to.be.true;
+            expect(db.let.calledWith('firstVertex', sinon.match.func)).to.be.true;
+            expect(db.let.calledWith('secondVertex', sinon.match.func)).to.be.true;
+            expect(db.let.calledWith('joiningEdge', sinon.match.func)).to.be.true;
+            expect(db.commit.called).to.be.true;
+            expect(db.return.calledWith('$firstVertex')).to.be.true;
+            expect(db.all.called).to.be.true;
+            done();
+        });
+    });
+});
+
+describe('createAlbum', function () {
+    it('should not create album if already exists', function () {
+        const album = 'Album';
+        const artist = 'Artist';
+        const db = {
+            query: sinon.stub()
+        };
+
+        const queryResults = [{title: 'Album', '@rid': '#1:1'}];
+        db.query.onFirstCall().returns(Promise.resolve(queryResults));
+
+        const results = createAlbum(db, album, artist);
+
+        expect(results).to.eventually.be.fulfilled.then(function() {
+            expect(db.query.callCount).to.equal(1);
+            expect(db.query.calledWith('select * from Album where title=:title', {params: {title: album}}));
+            done();
+        });
+    });
+
+    it('should create album if it does not exist', function () {
+        const album = 'Album';
+        const artist = 'Artist';
+        const db = {
+            query: sinon.stub(),
+            let: sinon.stub().returnsThis(),
+            commit: sinon.stub().returnsThis(),
+            'return': sinon.stub().returnsThis(),
+            all: sinon.stub()
+        };
+
+        const queryResults = [];
+        db.query.onFirstCall().returns(Promise.resolve(queryResults));
+
+        const results = createAlbum(db, album, artist);
+
+        expect(results).to.eventually.be.fulfilled.then(function() {
+            expect(db.query.callCount).to.equal(1);
+            expect(db.query.calledWith('select * from Album where title=:title', {params: {title: album}}));
+            expect(db.let.callCount).to.equal(3);
+            expect(db.let.calledWith('firstVertex', sinon.match.func)).to.be.true;
+            expect(db.let.calledWith('secondVertex', sinon.match.func)).to.be.true;
+            expect(db.let.calledWith('joiningEdge', sinon.match.func)).to.be.true;
             expect(db.commit.called).to.be.true;
             expect(db.return.calledWith('$firstVertex')).to.be.true;
             expect(db.all.called).to.be.true;
