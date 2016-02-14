@@ -2,7 +2,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import Main from './Main';
 import NowPlaying from './NowPlaying';
-import {updateQueue} from '../actions/actions';
+import {updateQueue, updatePlaying} from '../actions/actions';
 
 const divStyles = {
     display: 'flex',
@@ -23,12 +23,18 @@ class App extends React.Component {
     refreshQueue() {
         this.props.dispatch(updateQueue());
     }
+
+    refreshPlaying() {
+        this.props.dispatch(updatePlaying());
+    }
 }
 
 function select(state) {
     return {
         loadingQueue: state.queue.loadingQueue,
-        queue: state.queue.queue
+        queue: state.queue.queue,
+        loadingPlaying: state.playing.loadingPlaying,
+        playing: state.playing.playing
     };
 }
 
