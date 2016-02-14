@@ -15,7 +15,7 @@ class App extends React.Component {
         return (
             <div style={divStyles}>
                 <Main queue={this.props.queue} refreshQueue={this.refreshQueue.bind(this)}/>
-                <NowPlaying />
+                <NowPlaying playing={this.props.playing} refreshPlaying={this.refreshPlaying.bind(this)}/>
             </div>
         );
     }

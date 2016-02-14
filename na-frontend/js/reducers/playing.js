@@ -2,15 +2,18 @@ import {FETCH_PLAYING, RECEIVE_PLAYING} from '../actions/actions';
 
 const initialState = {
     loadingPlaying: false,
-    playing: null
+    playing: {
+        'song': '',
+        'artist': '',
+        'album': ''
+    }
 };
 
 export default function(state = initialState, action) {
     switch (action.type) {
     case FETCH_PLAYING:
         return Object.assign({}, state, {
-            loadingPlaying: true,
-            playing: null
+            loadingPlaying: true
         });
     case RECEIVE_PLAYING:
         return Object.assign({}, state, {

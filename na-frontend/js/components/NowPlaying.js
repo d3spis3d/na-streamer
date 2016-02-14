@@ -8,11 +8,17 @@ const divStyles = {
 
 export default class NowPlaying extends React.Component {
     render() {
+        const song = this.props.playing;
         return (
             <div style={divStyles}>
-                Bottom
+                <span> {song.artist} - {song.title} </span>
+                <button onClick={() => this.refreshPlaying()}> Update </button>
                 <audio src="/stream" autoPlay></audio>
             </div>
         );
+    }
+
+    refreshPlaying() {
+        this.props.refreshPlaying();
     }
 }
