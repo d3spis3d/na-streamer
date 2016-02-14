@@ -24,8 +24,8 @@ function queue(state = initialState, action) {
     }
 }
 
-const rootReducer = combineReducers([
+const rootReducer = combineReducers({
     queue
-]);
+});
 
 export default rootReducer;

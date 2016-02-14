@@ -1,6 +1,8 @@
 import React from 'react';
+import {connect} from 'react-redux';
 import Main from './Main';
 import NowPlaying from './NowPlaying';
+import {updateQueue} from '../actions/actions';
 
 const divStyles = {
     display: 'flex',
@@ -8,13 +10,26 @@ const divStyles = {
     height: '100vh'
 };
 
-export default class App extends React.Component {
+class App extends React.Component {
     render() {
         return (
             <div style={divStyles}>
-                <Main />
+                <Main queue={this.props.queue} refreshQueue={this.refreshQueue.bind(this)}/>
                 <NowPlaying />
             </div>
         );
     }
+
+    refreshQueue() {
+        this.props.dispatch(updateQueue());
+    }
 }
+
+function select(state) {
+    return {
+        loadingQueue: state.queue.loadingQueue,
+        queue: state.queue.queue
+    };
+}
+
+export default connect(select)(App);
