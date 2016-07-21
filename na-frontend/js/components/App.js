@@ -1,22 +1,16 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import Main from './Main';
-import NowPlaying from './NowPlaying';
+import Channel from './Channel';
 import {updateQueue, updatePlaying} from '../actions/actions';
-
-const divStyles = {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100vh'
-};
 
 class App extends React.Component {
     render() {
         return (
-            <div style={divStyles}>
-                <Main queue={this.props.queue} refreshQueue={this.refreshQueue.bind(this)}/>
-                <NowPlaying playing={this.props.playing} refreshPlaying={this.refreshPlaying.bind(this)}/>
-            </div>
+            <Channel
+                refreshQueue={this.refreshQueue.bind(this)}
+                refreshPlaying={this.refreshPlaying.bind(this)}
+                queue={this.props.queue}
+                playing={this.props.playing} />
         );
     }
 
