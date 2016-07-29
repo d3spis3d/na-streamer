@@ -6,7 +6,7 @@ import {getClients} from '../../js/routes/clients';
 describe('Clients route', function () {
     describe('getClients', function () {
         it('should have correct url', function () {
-            const expectedUrl = '/clients';
+            const expectedUrl = '/api/clients';
 
             expect(getClients.url).to.equal(expectedUrl);
         });

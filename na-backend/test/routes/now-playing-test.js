@@ -10,7 +10,7 @@ const expect = chai.expect;
 describe('Now playing route', function () {
     describe('getNowPlaying', function () {
         it('should have the correct url', function () {
-            const expectedUrl = '/playing';
+            const expectedUrl = '/api/playing';
 
             expect(getNowPlaying.url).to.equal(expectedUrl);
         });

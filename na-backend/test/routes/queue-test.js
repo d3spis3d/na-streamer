@@ -10,7 +10,7 @@ const expect = chai.expect;
 describe('Queue route', function() {
     describe('addToQueue', function() {
         it('should have correct url', function() {
-            const expectedUrl = '/queue';
+            const expectedUrl = '/api/queue';
 
             expect(addToQueue.url).to.equal(expectedUrl);
         });
@@ -49,7 +49,7 @@ describe('Queue route', function() {
 
     describe('getQueue', function() {
         it('should have correct url', function() {
-            const expectedUrl = '/queue';
+            const expectedUrl = '/api/queue';
 
             expect(getQueue.url).to.equal(expectedUrl);
         });
@@ -129,7 +129,7 @@ describe('Queue route', function() {
 
     describe('removeFromQueue', function () {
         it('should have the correct url', function () {
-            const expectedUrl = '/queue';
+            const expectedUrl = '/api/queue';
 
             expect(removeFromQueue.url).to.equal(expectedUrl);
         });

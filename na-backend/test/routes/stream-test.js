@@ -7,7 +7,7 @@ import {getStream} from '../../js/routes/stream';
 describe('Stream route', function() {
     describe('getStream', function() {
         it('should have correct url', function() {
-            const expectedUrl = '/stream';
+            const expectedUrl = '/api/stream';
 
             expect(getStream.url).to.equal(expectedUrl);
         });

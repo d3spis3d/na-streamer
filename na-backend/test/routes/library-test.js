@@ -11,7 +11,7 @@ const expect = chai.expect;
 describe('Library route', function() {
     describe('getArtists', function() {
         it('should have correct url', function() {
-            const expectedUrl = '/artists';
+            const expectedUrl = '/api/artists';
 
             expect(getArtists.url).to.equal(expectedUrl);
         });
@@ -49,7 +49,7 @@ describe('Library route', function() {
 
     describe('getAlbums', function () {
         it('should have correct url', function() {
-            const expectedUrl = '/albums';
+            const expectedUrl = '/api/albums';
 
             expect(getAlbums.url).to.equal(expectedUrl);
         });
@@ -116,7 +116,7 @@ describe('Library route', function() {
 
     describe('getSongs', function () {
         it('should have correct url', function () {
-            const expectedUrl = '/songs';
+            const expectedUrl = '/api/songs';
 
             expect(getSongs.url).to.equal(expectedUrl);
         });
