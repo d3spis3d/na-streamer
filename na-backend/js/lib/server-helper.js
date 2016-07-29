@@ -2,21 +2,7 @@ import {createArtist, createAlbum, createAlbumArtist, createSong,
         createStreamer, associateSongAndStreamer,
         createGenre, createGenreArtist} from '../queries/setup-track-data';
 
-export function createStreamersUpdate(streamers) {
-    return function(streamerId, stream) {
-        streamers[streamerId] = stream;
-    };
-}
-
-export function setClientList(clients) {
-    return function(data) {
-        clients.forEach(client => {
-            client.res.write(data);
-        });
-    };
-}
-
-export function setTrackListingMap(db) {
+export function setupTrackListUpdate(db) {
     return function(data) {
         const key = data.key;
         const trackData = data.tracks;
@@ -83,7 +69,7 @@ export function setupInitQueue(db, streamers) {
 
             const streamerKey = result.key[0];
             const songId = result.id;
-            const stream = streamers[streamerKey];
+            const stream = streamers.get(streamerKey);
             stream.write(songId.toString());
 
             return db.query(`insert into Now_Playing (title, album, artist) values (:title, :album, :artist)`, {
@@ -111,7 +97,7 @@ export function setupNextSong(db, streamers) {
 
             const streamerKey = result.key[0];
             const songId = result.id;
-            const stream = streamers[streamerKey];
+            const stream = streamers.get(streamerKey);
             stream.write(songId.toString());
 
             return db.query(`insert into Now_Playing (title, album, artist) values (:title, :album, :artist)`, {

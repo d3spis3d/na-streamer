@@ -3,7 +3,7 @@ export const getClients = {
     generateHandler: function(clients) {
         return function(req, res) {
             res.status(200).send(JSON.stringify({
-                count: clients.length
+                count: clients.count()
             }));
         };
     }
