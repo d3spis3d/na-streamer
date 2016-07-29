@@ -1,5 +1,5 @@
 export const getStream = {
-    url: '/stream',
+    url: '/api/stream',
     generateHandler: function(clients, populateQueue) {
         return function(req, res) {
             const headers = {

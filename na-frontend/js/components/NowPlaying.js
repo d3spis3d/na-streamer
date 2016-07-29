@@ -13,7 +13,7 @@ export default class NowPlaying extends React.Component {
             <div style={divStyles}>
                 <span> {song.artist} - {song.title} </span>
                 <button onClick={() => this.refreshPlaying()}> Update </button>
-                <audio src="/stream" autoPlay></audio>
+                <audio src="/api/stream" autoPlay></audio>
             </div>
         );
     }

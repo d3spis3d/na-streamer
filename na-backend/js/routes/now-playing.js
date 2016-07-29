@@ -1,5 +1,5 @@
 export const getNowPlaying = {
-    url: '/playing',
+    url: '/api/playing',
     generateHandler: function(db) {
         return function(req, res) {
             return db.query('select from Now_Playing limit 1')

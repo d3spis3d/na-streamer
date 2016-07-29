@@ -2,7 +2,7 @@ import {listArtists, listAlbums, listAlbumsByArtist,
         listSongs, listSongsByAlbum, listSongsByArtist} from '../queries/list-tracks';
 
 export const getArtists = {
-    url: '/artists',
+    url: '/api/artists',
     generateHandler: function(db) {
         return function(req, res) {
             return listArtists(db).then(results => {
@@ -13,7 +13,7 @@ export const getArtists = {
 }
 
 export const getAlbums = {
-    url: '/albums',
+    url: '/api/albums',
     generateHandler: function(db) {
         return function(req, res) {
             if (req.query.artist) {
@@ -29,7 +29,7 @@ export const getAlbums = {
 }
 
 export const getSongs = {
-    url: '/songs',
+    url: '/api/songs',
     generateHandler: function(db) {
         return function(req, res) {
             if (req.query.album) {

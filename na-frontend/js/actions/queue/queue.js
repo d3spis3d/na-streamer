@@ -19,7 +19,7 @@ export function updateQueue() {
     return function(dispatch) {
         dispatch(fetchQueue());
 
-        return fetch('/queue')
+        return fetch('/api/queue')
         .then(response => response.json())
         .then(json => dispatch(receiveQueue(json)));
     };

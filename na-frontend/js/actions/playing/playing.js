@@ -19,7 +19,7 @@ export function updatePlaying() {
     return function(dispatch) {
         dispatch(fetchPlaying());
 
-        return fetch('/playing')
+        return fetch('/api/playing')
         .then(response => response.json())
         .then(json => dispatch(receivePlaying(json)));
     };

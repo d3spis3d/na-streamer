@@ -1,5 +1,5 @@
 export const getQueue = {
-    url: '/queue',
+    url: '/api/queue',
     generateHandler: function(db) {
         return function(req, res) {
             return db.query('select * from Queue')
@@ -31,7 +31,7 @@ export const getQueue = {
 }
 
 export const addToQueue = {
-    url: '/queue',
+    url: '/api/queue',
     generateHandler: function(db) {
         return function(req, res) {
             const rid = req.body.rid;
@@ -44,7 +44,7 @@ export const addToQueue = {
 }
 
 export const removeFromQueue = {
-    url: '/queue',
+    url: '/api/queue',
     generateHandler: function(db) {
         return function(req, res) {
             const rid = req.body.rid;
