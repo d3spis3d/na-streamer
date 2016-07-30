@@ -6,26 +6,30 @@ import sinon from 'sinon';
 import setupStreamHandler from '../../js/lib/setup-stream-handler';
 
 describe('setupStreamHandler', function() {
-    let writeToAllClients;
-    let addToStreamers;
+    let clients;
+    let streamers;
     let updateTrackListing;
     let nextSongInQueue;
 
     beforeEach(function() {
-        writeToAllClients = sinon.spy();
-        addToStreamers = sinon.spy();
+        clients = {
+            writeToAll: sinon.spy()
+        };
+        streamers = {
+            add: sinon.spy()
+        };
         updateTrackListing = sinon.spy();
         nextSongInQueue = sinon.spy();
     });
 
     it('should return a function', function() {
-        const results = setupStreamHandler(writeToAllClients, addToStreamers, updateTrackListing, nextSongInQueue);
+        const results = setupStreamHandler(clients, streamers, updateTrackListing, nextSongInQueue);
 
         expect(results).to.be.a('function');
     });
 
-    it('should return a handler that calls updateTrackListing and addToStreamers on receiving Object', function() {
-        const handleStream = setupStreamHandler(writeToAllClients, addToStreamers, updateTrackListing, nextSongInQueue);
+    it('should return a handler that calls updateTrackListing and streamers.add on receiving Object', function() {
+        const handleStream = setupStreamHandler(clients, streamers, updateTrackListing, nextSongInQueue);
         const stream = new EventEmitter();
 
         const mockData = {
@@ -46,11 +50,11 @@ describe('setupStreamHandler', function() {
         stream.emit('data', mockData);
 
         expect(updateTrackListing.calledWith(mockData)).to.be.true;
-        expect(addToStreamers.calledWith(mockData.key. stream));
+        expect(streamers.add.calledWith(mockData.key. stream));
     });
 
-    it('should return a handler that calls writeToAllClients on receiving Buffer', function() {
-        const handleStream = setupStreamHandler(writeToAllClients, addToStreamers, updateTrackListing, nextSongInQueue);
+    it('should return a handler that calls clients.writeToAll on receiving Buffer', function() {
+        const handleStream = setupStreamHandler(clients, streamers, updateTrackListing, nextSongInQueue);
         const stream = new EventEmitter();
 
         const mockData = new Buffer(8);
@@ -58,11 +62,11 @@ describe('setupStreamHandler', function() {
         handleStream(stream);
         stream.emit('data', mockData);
 
-        expect(writeToAllClients.calledWith(mockData)).to.be.true;
+        expect(clients.writeToAll.calledWith(mockData)).to.be.true;
     });
 
     it('should return a handler that calls nextSongInQueue on receiving String', function() {
-        const handleStream = setupStreamHandler(writeToAllClients, addToStreamers, updateTrackListing, nextSongInQueue);
+        const handleStream = setupStreamHandler(clients, streamers, updateTrackListing, nextSongInQueue);
         const stream = new EventEmitter();
 
         const mockData = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
