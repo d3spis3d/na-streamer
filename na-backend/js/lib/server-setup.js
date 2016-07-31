@@ -20,8 +20,11 @@ export function setupClients() {
                 }
             });
             indices.forEach(i => {
-                clients.splice(i);
+                clients.splice(i, 1);
             });
+        },
+        get: function() {
+            return clients;
         }
     };
 }
