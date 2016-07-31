@@ -3,9 +3,9 @@ import express from 'express';
 import OrientDB from 'orientjs';
 import {BinaryServer} from 'binaryjs';
 
-import setupStreamServer from './lib/setup-stream-server';
-import {setupInitQueue, setupNextSong} from './lib/server-helper';
-import { setupClients, setupStreamers } from './lib/server-setup';
+import {setupInitQueue, setupNextSong, setupTrackListUpdate} from './lib/server-helper';
+import {setupClients, setupStreamers} from './lib/server-setup';
+import setupStreamHandler from './lib/setup-stream-handler';
 import setupRoutes from './routes/routes-setup';
 
 import config from './config';
@@ -41,4 +41,4 @@ const streamerServer = BinaryServer({port: config.streamPort});
 streamerServer.on('connection', function(streamer) {
     console.log('stream connected');
     streamer.on('stream', setupStreamHandler(clients, streamers, updateTrackListing, nextSongInQueue));
-};);
+});
