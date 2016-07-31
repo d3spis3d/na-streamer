@@ -6,8 +6,7 @@ exports.up = function (db) {
         Channel.property.create({
             name: 'title',
             type: 'String'
-        });
-        Channel.property.create({
+        }, {
             name: 'key',
             type: 'String'
         });
