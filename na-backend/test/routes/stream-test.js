@@ -4,8 +4,17 @@ import sinon from 'sinon';
 
 import {getStream} from '../../js/routes/stream';
 
+let clients;
+
 describe('Stream route', function() {
     describe('getStream', function() {
+        beforeEach(function() {
+            clients = {
+                add: sinon.stub(),
+                removeByIp: sinon.stub()
+            };
+        });
+
         it('should have correct url', function() {
             const expectedUrl = '/api/stream';
 
@@ -13,15 +22,12 @@ describe('Stream route', function() {
         });
 
         it('should return a function from generateHandler', function() {
-            const clients = [];
-
             const results = getStream.generateHandler(clients);
 
             expect(results).to.be.a('function');
         });
 
         it('should generate a handler to store client connections', function() {
-            const clients = [];
             const populateQueue = sinon.spy();
 
             const inputRequest = {
@@ -29,25 +35,22 @@ describe('Stream route', function() {
                 ip: '127.0.0.1'
             };
             const inputResponse = {
-                writeHead: function() { }
+                writeHead: sinon.stub()
             };
-
-            const spy = sinon.spy(inputResponse, 'writeHead');
 
             const handler = getStream.generateHandler(clients, populateQueue);
 
             handler(inputRequest, inputResponse);
 
-            expect(spy.calledWith(200, {
+            expect(inputResponse.writeHead.calledWith(200, {
                 "Content-Type": "audio/mpeg",
                 "Connection": "close",
                 "Transfer-Encoding": "identity"
             }));
-            expect(clients).to.eql([{ res: inputResponse, ip: '127.0.0.1' }]);
+            expect(clients.add.calledWith({ res: inputResponse, ip: '127.0.0.1' })).to.equal(true);
         });
 
         it('should generate handler that ignores headers if already exist', function() {
-            const clients = [];
             const populateQueue = sinon.spy();
 
             const inputRequest = {
@@ -58,21 +61,17 @@ describe('Stream route', function() {
                 headers: {
                     "Content-Type": "audio/mpeg"
                 },
-                writeHead: function() { }
+                writeHead: sinon.stub()
             };
-
-            const spy = sinon.spy(inputResponse, 'writeHead');
 
             const handler = getStream.generateHandler(clients, populateQueue);
 
             handler(inputRequest, inputResponse);
 
-            expect(spy.callCount).to.equal(0);
-            expect(clients).to.eql([{ res: inputResponse, ip: '127.0.0.1' }]);
+            expect(inputResponse.writeHead.callCount).to.equal(0);
         });
 
         it('should generate handler that calls populateQueue', function() {
-            const clients = [];
             const populateQueue = sinon.spy();
 
             const inputRequest = {
@@ -83,10 +82,8 @@ describe('Stream route', function() {
                 headers: {
                     "Content-Type": "audio/mpeg"
                 },
-                writeHead: function() { }
+                writeHead: sinon.stub()
             };
-
-            const spy = sinon.spy(inputResponse, 'writeHead');
 
             const handler = getStream.generateHandler(clients, populateQueue);
 
@@ -96,7 +93,6 @@ describe('Stream route', function() {
         });
 
         it('should generate handler that removes client when connection disconnects', function() {
-            const clients = [];
             const populateQueue = sinon.spy();
 
             const inputRequest = {
@@ -107,18 +103,16 @@ describe('Stream route', function() {
                 headers: {
                     "Content-Type": "audio/mpeg"
                 },
-                writeHead: function() { }
+                writeHead: sinon.stub()
             };
-
-            const spy = sinon.spy(inputResponse, 'writeHead');
 
             const handler = getStream.generateHandler(clients, populateQueue);
 
             handler(inputRequest, inputResponse);
 
-            expect(clients).to.eql([{ res: inputResponse, ip: '127.0.0.1' }]);
+            expect(clients.add.calledWith({ res: inputResponse, ip: '127.0.0.1' })).to.equal(true);
             inputRequest.connection.emit('close');
-            expect(clients).to.eql([]);
+            expect(clients.removeByIp.calledWith(inputRequest.ip)).to.equal(true);
         });
     });
 });

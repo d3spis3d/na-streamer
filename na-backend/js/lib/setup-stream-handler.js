@@ -1,13 +1,13 @@
 import Rx from 'rx';
 
-export default function(writeToAllClients, addToStreamers, updateTrackListing, nextSongInQueue) {
+export default function(clients, streamers, updateTrackListing, nextSongInQueue) {
     return function(stream) {
         const streamedData = Rx.Observable.fromEvent(stream, 'data');
 
         const trackListingData = streamedData
             .filter(data => !Buffer.isBuffer(data) && !(typeof data === 'string' || data instanceof String));
         trackListingData.subscribe(data => {
-            addToStreamers(data.key, stream);
+            streamers.add(data.key, stream);
             updateTrackListing(data);
         });
 
@@ -19,6 +19,8 @@ export default function(writeToAllClients, addToStreamers, updateTrackListing, n
 
         const binaryData = streamedData
             .filter(data => Buffer.isBuffer(data));
-        binaryData.subscribe(writeToAllClients);
+        binaryData.subscribe(data => {
+            clients.writeToAll(data);
+        });
     };
 }

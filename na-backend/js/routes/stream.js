@@ -10,22 +10,14 @@ export const getStream = {
             if (!res.headers) {
                 res.writeHead(200, headers);
             }
-            clients.push({
+            clients.add({
                 ip: req.ip,
                 res: res
             });
             populateQueue();
 
             req.connection.on('close', () => {
-                let indices = [];
-                clients.forEach((client, i) => {
-                    if (client.ip === req.ip) {
-                        indices.push(i);
-                    }
-                });
-                indices.forEach(i => {
-                    clients.splice(i);
-                });
+                clients.removeByIp(req.ip);
             });
         };
     }

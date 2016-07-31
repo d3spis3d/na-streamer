@@ -6,7 +6,7 @@ export function createStreamer(db, streamerKey) {
     })
     .then(streamerResults => {
         if (streamerResults.length) {
-            return;
+            return null;
         }
         return db.query('insert into Streamer (key) values (:key)', {
             params: {
@@ -24,7 +24,7 @@ export function createGenre(db, genre) {
     })
     .then(genreResults => {
         if (genreResults.length) {
-            return;
+            return null;
         }
         return db.query('insert into Genre (name) values (:name)', {
             params: {
@@ -42,7 +42,7 @@ export function createArtist(db, artist) {
     })
     .then(artistResults => {
         if (artistResults.length) {
-            return;
+            return null;
         }
         return db.query('insert into Artist (name) values (:name)', {
             params: {
@@ -81,7 +81,7 @@ export function createAlbum(db, albumName) {
     })
     .then(albumResults => {
         if (albumResults.length) {
-            return
+            return null;
         }
         return db.query('insert into Album (title) values (:title)', {
             params: {
