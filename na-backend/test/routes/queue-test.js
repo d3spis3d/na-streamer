@@ -10,7 +10,7 @@ const expect = chai.expect;
 describe('Queue route', function() {
     describe('addToQueue', function() {
         it('should have correct url', function() {
-            const expectedUrl = '/api/queue';
+            const expectedUrl = '/api/queue/:channel';
 
             expect(addToQueue.url).to.equal(expectedUrl);
         });
@@ -23,24 +23,26 @@ describe('Queue route', function() {
         });
 
         it('should generate a handler that adds a song to the queue', function(done) {
-            const db = {
-                query: sinon.stub().returns(Promise.resolve())
-            };
+            const addToChannelQueue = sinon.stub().returns(Promise.resolve());
+            const db = sinon.stub();
             const req = {
                 body: {
                     rid: '#1:1'
+                },
+                params: {
+                    channel: 'abcde'
                 }
             };
             const res = {
                 sendStatus: sinon.spy()
             };
 
-            const handler = addToQueue.generateHandler(db);
+            const handler = addToQueue.generateHandler(db, addToChannelQueue);
 
             const result = handler(req, res);
 
             expect(result).to.eventually.be.fulfilled.then(function() {
-                expect(db.query.calledWith('insert into Queue (id) values (#1:1)')).to.be.true;
+                expect(addToChannelQueue.calledWith(db, '#1:1', 'abcde')).to.be.true;
                 expect(res.sendStatus.calledWith(200)).to.be.true;
                 done();
             });
@@ -49,7 +51,7 @@ describe('Queue route', function() {
 
     describe('getQueue', function() {
         it('should have correct url', function() {
-            const expectedUrl = '/api/queue';
+            const expectedUrl = '/api/queue/:channel';
 
             expect(getQueue.url).to.equal(expectedUrl);
         });
@@ -61,67 +63,30 @@ describe('Queue route', function() {
             expect(results).to.be.a('function');
         });
 
-        it('should generate a handler that returns songs on queue when queue is populated', function(done) {
-            const allQueue = [
-                { id: '#1:1' },
-                { id: '#1:2' }
-            ];
-            const songOnQueue = [
-                { title: 'Song One', album: ['Album'], artist: ['Artist'], id: 'xxxx', '@rid': '#1:5' },
-                { title: 'Song 2', album: ['Album'], artist: ['Artist'], id: 'yyyy', '@rid': '#1:1' }
-            ];
-
-            const query = sinon.stub();
-            const db = {
-                query: query
-            };
-            query.onFirstCall().returns(Promise.resolve(allQueue));
-            query.onSecondCall().returns(Promise.resolve(songOnQueue));
-
-            const req = {};
-            const res = {
-                send: sinon.spy()
-            };
-
-            const processedResults = [
+        it('should generate a handler that returns songs on queue', function(done) {
+            const results = [
                 { title: 'Song One', id: 'xxxx', album: 'Album', artist: 'Artist', rid: '#1:5' },
                 { title: 'Song 2', id: 'yyyy', album: 'Album', artist: 'Artist', rid: '#1:1' }
             ];
 
-            const handler = getQueue.generateHandler(db);
+            const listQueueForChannel = sinon.stub().returns(Promise.resolve(results));
+            const db = sinon.stub();
 
-            const result = handler(req, res);
-
-            expect(result).to.eventually.be.fulfilled.then(function() {
-                expect(query.calledWith('select * from Queue')).to.be.true;
-                expect(query.calledWith(`select *, out('Found_On').title as album, out('Found_On').out('Recorded_By').name as artist from [#1:1,#1:2]`)).to.be.true;
-                expect(res.send.calledWith(JSON.stringify(processedResults))).to.be.true;
-                done();
-            });
-        });
-
-        it('should generate a handler that returns an empty array when no queued songs', function() {
-            const allQueue = [];
-
-            const query = sinon.stub();
-            const db = {
-                query: query
+            const req = {
+                params: {
+                    channel: 'abcde'
+                }
             };
-            query.onFirstCall().returns(Promise.resolve(allQueue));
-
-            const req = {};
             const res = {
                 send: sinon.spy()
             };
 
-            const handler = getQueue.generateHandler(db);
-
+            const handler = getQueue.generateHandler(db, listQueueForChannel);
             const result = handler(req, res);
 
             expect(result).to.eventually.be.fulfilled.then(function() {
-                expect(query.calledWith('select * from Queue')).to.be.true;
-                expect(query.neverCalledWith(`select *, out('Found_On').title as album, out('Found_On').out('Recorded_By').name as artist from []`)).to.be.true;
-                expect(res.send.calledWith(JSON.stringify([]))).to.be.true;
+                expect(listQueueForChannel.calledWith(db, 'abcde')).to.be.true;
+                expect(res.send.calledWith(JSON.stringify(results))).to.be.true;
                 done();
             });
         });
@@ -129,7 +94,7 @@ describe('Queue route', function() {
 
     describe('removeFromQueue', function () {
         it('should have the correct url', function () {
-            const expectedUrl = '/api/queue';
+            const expectedUrl = '/api/queue/:channel';
 
             expect(removeFromQueue.url).to.equal(expectedUrl);
         });
@@ -142,30 +107,26 @@ describe('Queue route', function() {
         });
 
         it('should generate a handler that deletes from the queue based on rid', function (done) {
-            const query = sinon.stub().returns(Promise.resolve());
-            const db = {
-                query: query
-            };
+            const removeFromChannelQueue = sinon.stub().returns(Promise.resolve());
+            const db = sinon.stub();
 
             const req = {
                 body: {
                     rid: '#13:1'
+                },
+                params: {
+                    channel: 'abcde'
                 }
             };
             const res = {
                 sendStatus: sinon.stub()
             };
 
-            const handler = removeFromQueue.generateHandler(db);
-
+            const handler = removeFromQueue.generateHandler(db, removeFromChannelQueue);
             const result = handler(req, res);
 
             expect(result).to.eventually.be.fulfilled.then(function() {
-                expect(query.calledWith('delete vertex from Queue where id = :rid', {
-                    params: {
-                        rid: req.body.rid
-                    }
-                })).to.be.true;
+                expect(removeFromChannelQueue.calledWith(db, '#13:1', 'abcde'));
                 expect(res.sendStatus.calledWith(200)).to.be.true;
                 done();
             });

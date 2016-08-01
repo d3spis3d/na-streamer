@@ -6,6 +6,9 @@ import {getQueue, addToQueue, removeFromQueue} from './queue';
 import {getClients} from './clients';
 import {getNowPlaying} from './now-playing';
 
+import {listQueueForChannel, addToChannelQueue, removeFromChannelQueue}
+    from '../queries/queue';
+
 export default function(app, db, clients, populateQueue) {
     app.use(bodyParser.json());
 
@@ -13,11 +16,11 @@ export default function(app, db, clients, populateQueue) {
     app.get(getArtists.url, getArtists.generateHandler(db));
     app.get(getAlbums.url, getAlbums.generateHandler(db));
     app.get(getSongs.url, getSongs.generateHandler(db));
-    app.get(getQueue.url, getQueue.generateHandler(db));
+    app.get(getQueue.url, getQueue.generateHandler(db, listQueueForChannel));
     app.get(getClients.url, getClients.generateHandler(clients));
     app.get(getNowPlaying.url, getNowPlaying.generateHandler(db));
 
-    app.post(addToQueue.url, addToQueue.generateHandler(db));
+    app.post(addToQueue.url, addToQueue.generateHandler(db, addToChannelQueue));
 
-    app.delete(removeFromQueue.url, removeFromQueue.generateHandler(db));
+    app.delete(removeFromQueue.url, removeFromQueue.generateHandler(db, removeFromChannelQueue));
 }
