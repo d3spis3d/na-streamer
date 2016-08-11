@@ -14,11 +14,10 @@ export const getChannels = {
 
 export const createChannel = {
     url: '/api/channel',
-    generateHandler: function(db, create) {
+    generateHandler: function(db, createQuery) {
         return function(req, res) {
             const key = uuid.v4().substring(0, 6);
-            console.log(key, typeof key);
-            return create(db, req.body.title, key)
+            return createQuery(db, req.body.title, key)
             .then(() => {
                 res.sendStatus(200);
             });
