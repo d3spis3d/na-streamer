@@ -6,23 +6,11 @@ import extractTrack, {buildFileInfoForBackend} from './files-parsing';
 
 const CLIENT_KEYFILE = '.clientkey';
 
-export function setupFilePathProcessor(sendFileData, processTracks, musicDir, key) {
-    return function(err, files) {
-        if (err) {
-            console.log(err);
-            return;
-        }
-
-        if (files) {
-            const tracks = files.filter(file => file.indexOf(CLIENT_KEYFILE) === -1)
-                                .map(extractTrack(musicDir));
-            const hostedTracks = processTracks(tracks, buildFileInfoForBackend, {});
-            sendFileData({
-                key: key,
-                tracks: hostedTracks
-            });
-        }
-    };
+export function setupFilePathProcessor(processTracks, musicDir, key, files) {
+    const tracks = files
+        .filter(file => file.indexOf(CLIENT_KEYFILE) === -1)
+        .map(extractTrack(musicDir));
+    return processTracks(tracks, buildFileInfoForBackend, {});
 }
 
 export function setupFileWatcher(sendFileData, processTracks, musicDir, key) {

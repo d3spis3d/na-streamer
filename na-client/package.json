@@ -30,6 +30,7 @@
     "node-dir": "^0.1.11",
     "node-ffprobe": "^1.2.2",
     "node-uuid": "^1.4.7",
+    "promisify-node": "^0.4.0",
     "rx": "^4.0.7",
     "throttle": "^1.0.3",
     "watch": "^0.16.0"
