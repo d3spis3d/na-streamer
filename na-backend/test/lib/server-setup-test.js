@@ -17,10 +17,10 @@ describe('setupClients', function() {
 
         const clientInterface = setupClients();
 
-        expect(clientInterface.get().length).to.equal(0);
-        clientInterface.add(inputClient);
-        expect(clientInterface.get().length).to.equal(1);
-        expect(clientInterface.get()[0]).to.eql(inputClient);
+        expect(Object.keys(clientInterface.get())).to.eql([]);
+        clientInterface.addToChannel(inputClient, 'abcd');
+        expect(Object.keys(clientInterface.get())).to.eql(['abcd']);
+        expect(clientInterface.get()['abcd']).to.eql([inputClient]);
     });
 
     it('should provide an interface to write data to all clients', function() {
@@ -32,8 +32,8 @@ describe('setupClients', function() {
         };
 
         const clientInterface = setupClients();
-        clientInterface.add(inputClient);
-        clientInterface.writeToAll({data: 'xyz'});
+        clientInterface.addToChannel(inputClient, 'abcd');
+        clientInterface.writeToAllForChannel({data: 'xyz'}, 'abcd');
 
         expect(inputClient.res.write.calledWith({data: 'xyz'})).to.equal(true);
     });
@@ -47,9 +47,9 @@ describe('setupClients', function() {
         };
 
         const clientInterface = setupClients();
-        expect(clientInterface.count()).to.equal(0);
-        clientInterface.add(inputClient);
-        expect(clientInterface.count()).to.equal(1);
+        expect(clientInterface.count()).to.eql({});
+        clientInterface.addToChannel(inputClient, 'abcd');
+        expect(clientInterface.count()).to.eql({abcd: 1});
     });
 
     it('should provide an interface to remove clients by ip', function() {
@@ -63,14 +63,14 @@ describe('setupClients', function() {
         };
 
         const clientInterface = setupClients();
-        expect(clientInterface.count()).to.equal(0);
-        clientInterface.add(inputClient);
-        clientInterface.add(inputClient2);
-        expect(clientInterface.count()).to.equal(2);
+        expect(clientInterface.count()).to.eql({});
+        clientInterface.addToChannel(inputClient, 'abcd');
+        clientInterface.addToChannel(inputClient2, 'abcd');
+        expect(clientInterface.count()).to.eql({abcd: 2});
 
-        clientInterface.removeByIp('127.0.0.1');
-        expect(clientInterface.count()).to.equal(1);
-        expect(clientInterface.get()[0]).to.equal(inputClient2);
+        clientInterface.removeByIpFromChannel('127.0.0.1', 'abcd');
+        expect(clientInterface.count()).to.eql({abcd: 1});
+        expect(clientInterface.get()['abcd']).to.eql([inputClient2]);
     });
 });
 

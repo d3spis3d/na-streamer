@@ -1,6 +1,6 @@
 export const getStream = {
-    url: '/api/stream',
-    generateHandler: function(clients, populateQueue) {
+    url: '/api/stream/:channel',
+    generateHandler: function(clients, populateQueueForChannel) {
         return function(req, res) {
             const headers = {
                 "Content-Type": "audio/mpeg",
@@ -10,14 +10,15 @@ export const getStream = {
             if (!res.headers) {
                 res.writeHead(200, headers);
             }
-            clients.add({
+            clients.addToChannel({
                 ip: req.ip,
                 res: res
-            });
-            populateQueue();
+            }, req.params.channel);
+
+            populateQueueForChannel(req.params.channel);
 
             req.connection.on('close', () => {
-                clients.removeByIp(req.ip);
+                clients.removeByIpFromChannel(req.ip, req.params.channel);
             });
         };
     }

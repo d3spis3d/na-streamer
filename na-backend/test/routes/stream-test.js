@@ -10,13 +10,13 @@ describe('Stream route', function() {
     describe('getStream', function() {
         beforeEach(function() {
             clients = {
-                add: sinon.stub(),
-                removeByIp: sinon.stub()
+                addToChannel: sinon.stub(),
+                removeByIpFromChannel: sinon.stub()
             };
         });
 
         it('should have correct url', function() {
-            const expectedUrl = '/api/stream';
+            const expectedUrl = '/api/stream/:channel';
 
             expect(getStream.url).to.equal(expectedUrl);
         });
@@ -32,7 +32,10 @@ describe('Stream route', function() {
 
             const inputRequest = {
                 connection: new EventEmitter(),
-                ip: '127.0.0.1'
+                ip: '127.0.0.1',
+                params: {
+                    channel: 'abcd'
+                }
             };
             const inputResponse = {
                 writeHead: sinon.stub()
@@ -47,7 +50,7 @@ describe('Stream route', function() {
                 "Connection": "close",
                 "Transfer-Encoding": "identity"
             }));
-            expect(clients.add.calledWith({ res: inputResponse, ip: '127.0.0.1' })).to.equal(true);
+            sinon.assert.calledWith(clients.addToChannel, { res: inputResponse, ip: '127.0.0.1'}, 'abcd');
         });
 
         it('should generate handler that ignores headers if already exist', function() {
@@ -55,7 +58,10 @@ describe('Stream route', function() {
 
             const inputRequest = {
                 connection: new EventEmitter(),
-                ip: '127.0.0.1'
+                ip: '127.0.0.1',
+                params: {
+                    channel: 'abcd'
+                }
             };
             const inputResponse = {
                 headers: {
@@ -76,7 +82,10 @@ describe('Stream route', function() {
 
             const inputRequest = {
                 connection: new EventEmitter(),
-                ip: '127.0.0.1'
+                ip: '127.0.0.1',
+                params: {
+                    channel: 'abcd'
+                }
             };
             const inputResponse = {
                 headers: {
@@ -89,7 +98,7 @@ describe('Stream route', function() {
 
             handler(inputRequest, inputResponse);
 
-            expect(populateQueue.called).to.be.true;
+            expect(populateQueue.calledWith('abcd')).to.be.true;
         });
 
         it('should generate handler that removes client when connection disconnects', function() {
@@ -97,7 +106,10 @@ describe('Stream route', function() {
 
             const inputRequest = {
                 connection: new EventEmitter(),
-                ip: '127.0.0.1'
+                ip: '127.0.0.1',
+                params: {
+                    channel: 'abcd'
+                }
             };
             const inputResponse = {
                 headers: {
@@ -110,9 +122,9 @@ describe('Stream route', function() {
 
             handler(inputRequest, inputResponse);
 
-            expect(clients.add.calledWith({ res: inputResponse, ip: '127.0.0.1' })).to.equal(true);
+            expect(clients.addToChannel.calledWith({ res: inputResponse, ip: '127.0.0.1' }, 'abcd')).to.equal(true);
             inputRequest.connection.emit('close');
-            expect(clients.removeByIp.calledWith(inputRequest.ip)).to.equal(true);
+            expect(clients.removeByIpFromChannel.calledWith(inputRequest.ip, 'abcd')).to.equal(true);
         });
     });
 });

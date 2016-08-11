@@ -1,26 +1,34 @@
 export function setupClients() {
-    const clients = [];
+    const clients = {};
     return {
-        add: function(client) {
-            clients.push(client);
+        addToChannel: function(client, channel) {
+            if (clients[channel]) {
+                clients[channel].push(client);
+            } else {
+                clients[channel] = [client];
+            }
         },
         count: function() {
-            return clients.length;
+            const clientCount = {};
+            Object.keys(clients).forEach(channel => {
+                clientCount[channel] = clients[channel].length;
+            });
+            return clientCount;
         },
-        writeToAll: function(data) {
-            clients.forEach(client => {
+        writeToAllForChannel: function(data, channel) {
+            clients[channel].forEach(client => {
                 client.res.write(data);
             });
         },
-        removeByIp: function(ip) {
+        removeByIpFromChannel: function(ip, channel) {
             const indices = [];
-            clients.forEach((client, i) => {
+            clients[channel].forEach((client, i) => {
                 if (client.ip === ip) {
                     indices.push(i);
                 }
             });
             indices.forEach(i => {
-                clients.splice(i, 1);
+                clients[channel].splice(i, 1);
             });
         },
         get: function() {
