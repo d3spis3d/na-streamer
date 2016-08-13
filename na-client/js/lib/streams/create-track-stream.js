@@ -1,7 +1,7 @@
 import fs from 'fs';
 import Rx from 'rx';
 
-export default function(track, trackId, sendFileData, Throttle) {
+export default function(track, trackId, sendFileData, Throttle, channel) {
     return function(err, results) {
         const trackStream = fs.createReadStream(track);
         const bps = (results.format.bit_rate / 10) * 1.2;
@@ -18,7 +18,7 @@ export default function(track, trackId, sendFileData, Throttle) {
         .subscribe(() => {
             throttledData.dispose();
             throttleEnd.dispose();
-            sendFileData(trackId);
+            sendFileData(trackId + ';' + channel);
         });
     };
 }

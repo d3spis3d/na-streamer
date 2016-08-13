@@ -14,7 +14,8 @@ export default function(clients, streamers, updateTrackListing, nextSongInQueue)
         const trackEnd = streamedData
             .filter(data => !Buffer.isBuffer(data) && (typeof data === 'string' || data instanceof String));
         trackEnd.subscribe(data => {
-            nextSongInQueue();
+            const channel = data.split(';')[1];
+            nextSongInQueue(channel);
         });
 
         const binaryData = streamedData

@@ -1,16 +1,8 @@
 export const getNowPlaying = {
-    url: '/api/playing',
-    generateHandler: function(db) {
+    url: '/api/playing/:channel',
+    generateHandler: function(db, nowPlayingQuery) {
         return function(req, res) {
-            return db.query('select from Now_Playing limit 1')
-            .then(results => {
-                const nowPlaying = results[0];
-                return {
-                    title: nowPlaying.title,
-                    album: nowPlaying.album,
-                    artist: nowPlaying.artist
-                };
-            })
+            return nowPlayingQuery(db, req.params.channel)
             .then(nowPlaying => {
                 res.status(200).send(JSON.stringify(nowPlaying));
             });

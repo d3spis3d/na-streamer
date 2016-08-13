@@ -10,7 +10,7 @@ const expect = chai.expect;
 describe('Now playing route', function () {
     describe('getNowPlaying', function () {
         it('should have the correct url', function () {
-            const expectedUrl = '/api/playing';
+            const expectedUrl = '/api/playing/:channel';
 
             expect(getNowPlaying.url).to.equal(expectedUrl);
         });
@@ -23,31 +23,30 @@ describe('Now playing route', function () {
         });
 
         it('should generate a handler that returns the currently playing song', function (done) {
-            const nowPlaying = [
-                { title: 'Song 1', album: 'AlbumZ', artist: 'Artist', '@rid': '#1:1', '@class': 'Now_Playing'}
-            ];
+            const nowPlaying = { title: 'Song 1', album: 'AlbumZ', artist: 'Artist'};
 
-            const db = {
-                query: sinon.stub().returns(Promise.resolve(nowPlaying))
+            const db = sinon.stub();
+            const nowPlayingQuery = sinon.stub().returns(Promise.resolve(nowPlaying));
+
+            const req = {
+                params: {channel: 'abcd'}
             };
-
-            const req = {};
             const res = {
                 status: sinon.stub().returnsThis(),
                 send: sinon.stub()
             };
 
-            const handler = getNowPlaying.generateHandler(db);
+            const handler = getNowPlaying.generateHandler(db, nowPlayingQuery);
             const result = handler(req, res);
 
             expect(result).to.eventually.be.fulfilled.then(function() {
-                expect(db.query.calledWith('select from Now_Playing limit 1')).to.be.true;
-                expect(res.status.calledWith(200)).to.be.true;
-                expect(res.send.calledWith(JSON.stringify({
+                sinon.assert.calledWith(nowPlayingQuery, db, 'abcd');
+                sinon.assert.calledWith(res.status, 200);
+                sinon.assert.calledWith(res.send, JSON.stringify({
                     title: 'Song 1',
                     album: 'AlbumZ',
                     artist: 'Artist'
-                })));
+                }));
                 done();
             });
         });

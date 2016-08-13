@@ -6,6 +6,7 @@ import {getQueue, addToQueue, removeFromQueue} from './queue';
 import {getClients} from './clients';
 import {getNowPlaying} from './now-playing';
 import {getChannels, createChannel, deleteChannel} from './channel';
+import nowPlayingQuery from '../queries/now-playing';
 
 import {listQueueForChannel, addToChannelQueue, removeFromChannelQueue}
     from '../queries/queue';
@@ -20,7 +21,7 @@ export default function(app, db, clients, populateQueue) {
     app.get(getSongs.url, getSongs.generateHandler(db));
     app.get(getQueue.url, getQueue.generateHandler(db, listQueueForChannel));
     app.get(getClients.url, getClients.generateHandler(clients));
-    app.get(getNowPlaying.url, getNowPlaying.generateHandler(db));
+    app.get(getNowPlaying.url, getNowPlaying.generateHandler(db, nowPlayingQuery));
     app.get(getChannels.url, getChannels.generateHandler(db, listChannels));
 
     app.post(addToQueue.url, addToQueue.generateHandler(db, addToChannelQueue));

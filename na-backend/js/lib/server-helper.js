@@ -42,8 +42,12 @@ export function setupTrackListUpdate(db) {
 }
 
 export function setupInitQueue(db, streamers) {
-    return function() {
-        db.query('select * from Queue')
+    return function(channel) {
+        db.query('select * from Queue where channel = :channel', {
+            params: {
+                channel: channel
+            }
+        })
         .then(results => {
             if (results.length) {
                 return Promise.reject('Queue already populated');
@@ -57,7 +61,7 @@ export function setupInitQueue(db, streamers) {
             const filesCount = songs.length;
             for (let i = 0; i < 4; i++) {
                 const fileNumber = Math.floor(Math.random() * filesCount);
-                db.query(`insert into Queue (id) values (${songs[fileNumber]})`)
+                db.query(`insert into Queue (id, channel) values (${songs[fileNumber]}, ${channel})`)
             }
 
             const fileNumber = Math.floor(Math.random() * filesCount);
@@ -70,13 +74,14 @@ export function setupInitQueue(db, streamers) {
             const streamerKey = result.key[0];
             const songId = result.id;
             const stream = streamers.get(streamerKey);
-            stream.write(songId.toString());
+            stream.write(songId.toString() + ';' + channel);
 
-            return db.query(`insert into Now_Playing (title, album, artist) values (:title, :album, :artist)`, {
+            return db.query(`insert into Now_Playing (title, album, artist, channel) values (:title, :album, :artist, channel)`, {
                 params: {
                     title: result.title,
                     album: result.album[0],
-                    artist: result.artist[0]
+                    artist: result.artist[0],
+                    channel: channel
                 }
             });
         })
@@ -87,8 +92,12 @@ export function setupInitQueue(db, streamers) {
 }
 
 export function setupNextSong(db, streamers) {
-    return function() {
-        db.query('delete vertex Queue return before limit 1')
+    return function(channel) {
+        db.query('delete vertex Queue return before where channel = :channel limit 1', {
+            params: {
+                channel: channel
+            }
+        })
         .then(results => {
             return db.query(`select *, out("Hosted_On").key as key, out('Found_On').title as album, out('Found_On').out('Recorded_By').name as artist from ${results[0].id}`)
         })
@@ -98,9 +107,9 @@ export function setupNextSong(db, streamers) {
             const streamerKey = result.key[0];
             const songId = result.id;
             const stream = streamers.get(streamerKey);
-            stream.write(songId.toString());
+            stream.write(songId.toString() + ';' + channel);
 
-            return db.query(`insert into Now_Playing (title, album, artist) values (:title, :album, :artist)`, {
+            return db.query(`insert into Now_Playing (title, album, artist, channel) values (:title, :album, :artist)`, {
                 params: {
                     title: result.title,
                     album: result.album[0],
@@ -109,10 +118,18 @@ export function setupNextSong(db, streamers) {
             });
         })
         .then(() => {
-            return db.query('delete vertex Now_Playing limit 1');
+            return db.query('delete vertex Now_Playing where channel = :channel limit 1', {
+                params: {
+                    channel: channel
+                }
+            });
         })
         .then(() => {
-            return db.query('select COUNT(*) as count from Queue');
+            return db.query('select COUNT(*) as count from Queue where channel = :channel', {
+                params: {
+                    channel: channel
+                }
+            });
         })
         .then(count => {
             if (count[0].count === 1) {
@@ -127,8 +144,9 @@ export function setupNextSong(db, streamers) {
             const filesCount = songIds.length;
             for (let i = 0; i < 3; i++) {
                 const fileNumber = Math.floor(Math.random() * filesCount);
-                db.query(`insert into Queue (id) values (${songIds[fileNumber]})`)
+                db.query(`insert into Queue (id, channel) values (${songIds[fileNumber]})`)
             }
-        });
+        })
+        .catch(err => console.log(err));
     }
 }
