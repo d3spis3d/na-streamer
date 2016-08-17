@@ -1,19 +1,19 @@
 import {BinaryClient} from 'binaryjs';
+import Rx from 'rx';
 
 import openStreamToServer from './streams/open-stream-to-server';
 
-export function startClient(filesStore, options, key) {
+export function startClient(options) {
     const client = BinaryClient(`ws://${options.host}:${options.port}`);
 
-    client.on('open', function() {
-        openStreamToServer(filesStore, options.dir, client, key);
-    });
-    client.on('close', function() {
-        console.log('connection closed');
-    });
-    client.on('error', function(err) {
-        console.log('error: ', err);
-    });
+    clientConnect = Rx.Observable.fromEvent(client, 'on');
+    clientDisconnect = Rx.Observable.fromEvent(client, 'close');
+    clientError = Rx.Observable.fromEvent(client, 'err');
 
-    return client;
+    return {
+      client,
+      clientConnect,
+      clientDisconnect,
+      clientError
+    };
 }
