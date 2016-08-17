@@ -7,6 +7,8 @@ import promisify from 'promisify-node';
 
 import {startClient} from './lib/client';
 import {reduceAndMemoize} from './lib/helper';
+import applyClientHandlers from './lib/client-handlers';
+import setupFileWatcher from './lib/files/setup-file-watcher';
 
 const CLIENT_KEYFILE = '.clientkey';
 
@@ -57,5 +59,9 @@ dirFiles(options.dir)
     return processFiles(processTracks, options.dir, key, files);
 })
 .then(tracks => {
-    return startClient(filesById, options, key, tracks);
+    return startClient(filesById);
+})
+.then(client => {
+    applyClientHandlers(client, filesById, options, key, tracks);
+    setupFileWatcher(client, processTracks, options.dir, key);
 });
