@@ -2,11 +2,11 @@
 
 ## Steps for setting up OrientDB docker
 
-1. Open up the XML file `orientdb-server-config.xml` and add update the user and passwords. Move this file to a new directory.
+1. Open up the XML file `orientdb-server-config.xml` and add update the user and passwords. Move this file to a new directory called config.
 
 * Setup the docker image with the modified config file mapped to the container:
 
-  `docker run --name orientdb -d -v <path to xml config file folder>:/orientdb/config -p 7000:2424 -p 7001:2480 orientdb/orientdb`
+  `docker run --name orientdb -d -v $(pwd)/config/orientdb-server-config:/orientdb/config/orientdb-server-config.xml -p 7000:2424 -p 7001:2480 orientdb`
 
 * Create the database using orientjs client:
 
