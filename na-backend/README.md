@@ -6,7 +6,7 @@
 
 * Setup the docker image with the modified config file mapped to the container:
 
-  `docker run --name orientdb -d -v $(pwd)/config/orientdb-server-config:/orientdb/config/orientdb-server-config.xml -p 7000:2424 -p 7001:2480 orientdb`
+  `docker run --name orientdb -d -v $(pwd)/config/orientdb-server-config.xml:/orientdb/config/orientdb-server-config.xml -p 7000:2424 -p 7001:2480 orientdb`
 
 * Create the database using orientjs client:
 
@@ -28,3 +28,7 @@
     webPort: 4000,
     streamPort: 9000
   };`
+
+## Running na-backend
+
+`npm run start`
