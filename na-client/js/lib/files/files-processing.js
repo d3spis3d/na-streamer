@@ -5,6 +5,7 @@ import Rx from 'rx';
 import extractTrack, {buildFileInfoForBackend} from './files-parsing';
 
 const CLIENT_KEYFILE = '.clientkey';
+const DS_STORE = '.DS_Store';
 
 export function setupFilePathProcessor(sendFileData, processTracks, musicDir, key) {
     return function(err, files) {
@@ -14,8 +15,17 @@ export function setupFilePathProcessor(sendFileData, processTracks, musicDir, ke
         }
 
         if (files) {
-            const tracks = files.filter(file => file.indexOf(CLIENT_KEYFILE) === -1)
-                                .map(extractTrack(musicDir));
+            const tracks = files.filter(file => {
+                if (file.indexOf(CLIENT_KEYFILE) !== -1) {
+                    return false;
+                }
+                if (file.indexOf(DS_STORE) !== -1) {
+                    return false;
+                }
+                return true;
+            })
+            .map(extractTrack(musicDir));
+
             const hostedTracks = processTracks(tracks, buildFileInfoForBackend, {});
             sendFileData({
                 key: key,
