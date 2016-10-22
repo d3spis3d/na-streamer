@@ -12,8 +12,8 @@ export default class Channel extends React.Component {
     render() {
         return (
             <div style={divStyles}>
-                <Main queue={this.props.queue} refreshQueue={this.refreshQueue}/>
-                <NowPlaying playing={this.props.playing} refreshPlaying={this.refreshPlaying}/>
+                <Main queue={this.props.queue} refreshQueue={this.props.refreshQueue}/>
+                <NowPlaying playing={this.props.playing} refreshPlaying={this.props.refreshPlaying}/>
             </div>
         );
     }
