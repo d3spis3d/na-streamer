@@ -1,11 +1,6 @@
 import React from 'react';
 
-const divStyles = {
-    border: '1px solid grey',
-    flex: 2
-};
-
-export default class Queue extends React.Component {
+export default class Channel extends React.Component {
     render() {
         let items;
         if (this.props.queue) {
@@ -14,7 +9,7 @@ export default class Queue extends React.Component {
             });
         }
         return (
-            <div style={divStyles}>
+            <div>
                 <button onClick={() => this.refreshQueue()}> Sync </button>
                 {items}
             </div>

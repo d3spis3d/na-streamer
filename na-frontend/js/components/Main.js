@@ -1,6 +1,6 @@
 import React from 'react';
-import Queue from './Queue';
-import Library from './Library';
+import Sidebar from './Sidebar';
+import ViewContainer from './ViewContainer';
 
 
 const divStyles = {
@@ -12,8 +12,8 @@ export default class Main extends React.Component {
     render() {
         return (
             <div style={divStyles}>
-                <Queue queue={this.props.queue} refreshQueue={this.props.refreshQueue}/>
-                <Library />
+                <Sidebar />
+                <ViewContainer />
             </div>
         );
     }
