@@ -2,8 +2,10 @@ import fs from 'fs';
 import path from 'path';
 import commandLineArgs from 'command-line-args';
 import uuid from 'node-uuid';
+import dir from 'node-dir';
+import promisify from 'promisify-node';
 
-import {startClient} from './lib/client';
+import Client from './lib/client';
 
 const CLIENT_KEYFILE = '.clientkey';
 
@@ -32,13 +34,24 @@ const filesById = {};
 const keyPath = path.join(options.dir, CLIENT_KEYFILE);
 let key;
 
-fs.stat(keyPath, (err, stats) => {
-    if (err === null && stats.isFile()) {
+try {
+    const stats = fs.statSync(keyPath);
+    if (stats.isFile()) {
         key = fs.readFileSync(keyPath, 'utf8');
-    } else {
-        key = uuid.v4();
-        const file = fs.writeFileSync(keyPath, key);
-    }
+	} else {
+        key = uuid.v4()
+        fs.writeFileSync(keyPath, key);
+	}
+} catch(e) {
+    key = uuid.v4();
+    fs.writeFileSync(keyPath, key);
+}
 
-    startClient(filesById, options, key);
-});
+const processTracks = reduceAndMemoize(filesById, 'id', 'file');
+const dirFiles = promisify(dir.files);
+
+const client = Client(options, key);
+
+dirFiles(options.dir)
+.then(files => processFiles(processTracks, options.dir, key, files))
+.then(tracks => client.start(tracks));
