@@ -1,0 +1,20 @@
+[
+  {
+    "rid": "#1314",
+    "title": "Hello",
+    "album": "World",
+    "artist": "C++ and the Revolvers"
+  },
+  {
+    "rid": "#1315",
+    "title": "Singing Ax",
+    "album": "Singing Ax",
+    "artist": "J Tillman"
+  },
+  {
+    "rid": "#1316",
+    "title": "Yellow Submarine",
+    "album": "Not Sure",
+    "artist": "The Beatles"
+  }
+]
