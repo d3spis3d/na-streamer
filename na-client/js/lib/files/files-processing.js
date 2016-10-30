@@ -7,32 +7,19 @@ import extractTrack, {buildFileInfoForBackend} from './files-parsing';
 const CLIENT_KEYFILE = '.clientkey';
 const DS_STORE = '.DS_Store';
 
-export function setupFilePathProcessor(sendFileData, processTracks, musicDir, key) {
-    return function(err, files) {
-        if (err) {
-            console.log(err);
-            return;
+export function fileProcessor(processTracks, musicDir, key, files) {
+    const tracks = files.filter(file => {
+        if (file.indexOf(CLIENT_KEYFILE) !== -1) {
+            return false;
         }
-
-        if (files) {
-            const tracks = files.filter(file => {
-                if (file.indexOf(CLIENT_KEYFILE) !== -1) {
-                    return false;
-                }
-                if (file.indexOf(DS_STORE) !== -1) {
-                    return false;
-                }
-                return true;
-            })
-            .map(extractTrack(musicDir));
-
-            const hostedTracks = processTracks(tracks, buildFileInfoForBackend, {});
-            sendFileData({
-                key: key,
-                tracks: hostedTracks
-            });
+        if (file.indexOf(DS_STORE) !== -1) {
+            return false;
         }
-    };
+        return true;
+    })
+    .map(extractTrack(musicDir));
+
+    return processTracks(tracks, buildFileInfoForBackend, {});
 }
 
 export function setupFileWatcher(sendFileData, processTracks, musicDir, key) {

@@ -5,7 +5,8 @@ import uuid from 'node-uuid';
 import dir from 'node-dir';
 import promisify from 'promisify-node';
 
-import Client from './lib/client';
+import Client from './client/client';
+import { fileProcessor } from './lib/files/files-processing';
 
 const CLIENT_KEYFILE = '.clientkey';
 
