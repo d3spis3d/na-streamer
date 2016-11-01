@@ -2,9 +2,8 @@ import {BinaryClient} from 'binaryjs';
 import probe from 'node-ffprobe';
 import Rx from 'rx';
 
-import {createWriteStream} from '../helper';
 import setupFilesProcessing from '../files/setup-files-processing';
-import createTrackResponse from './create-track-response';
+import Stream from '../streams/stream';
 
 export default class Client() {
 
@@ -13,27 +12,38 @@ export default class Client() {
         this.port = options.port;
         this.dir = options.dir;
         this.key = key;
+        this.filesById = {};
+    }
+
+    getFiles() {
+        return filesById;
     }
 
     start(tracks) {
         this.client = BinaryClient(`ws://${this.host}:${this.port}`);
 
         client.on('open', () => {
-            console.log('opened connection');
-            this.stream = client.createStream();
 
-            const streamTrack = createTrackResponse(tracks, sendFileData, probe);
-
-            const streamedData = Rx.Observable.fromEvent(stream, 'data');
-
-            const trackRequests = streamedData.filter(data => typeof data === 'string' || data instanceof String);
-            trackRequests.subscribe(streamTrack);
-
-            this.sendTracks(tracks);
         });
 
         client.on('close', this.handleClose);
         client.on('error', this.handleError);
+    }
+
+    handleOpen() {
+        console.log('opened connection');
+        this.stream = client.createStream();
+        this.sendTracks(tracks);
+
+        this.setupStreams();
+    }
+
+    handleClose() {
+      console.log('connection closed');
+    }
+
+    handleError(err) {
+      console.log('error: ', err);
     }
 
     sendTracks(tracks) {
@@ -47,11 +57,17 @@ export default class Client() {
       this.stream.write(data);
     }
 
-    handleClose() {
-      console.log('connection closed');
+    setupStreams() {
+        const streamedData = Rx.Observable.fromEvent(stream, 'data');
+
+        const trackRequests = streamedData.filter(data => typeof data === 'string' || data instanceof String);
+
+        trackRequests.subscribe(this.streamTrack);
     }
 
-    handleError(err) {
-      console.log('error: ', err);
+    streamTrack(trackId) {
+        const track = this.filesById[trackId];
+        stream = Stream(this.stream);
+        stream.streamTrack(track);
     }
 }

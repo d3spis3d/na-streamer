@@ -31,7 +31,6 @@ const cli = commandLineArgs([
     }
 ]);
 const options = cli.parse();
-const filesById = {};
 
 const keyPath = path.join(options.dir, CLIENT_KEYFILE);
 let key;
@@ -54,10 +53,10 @@ const dirFiles = promisify(dir.files);
 const client = Client(options, key);
 
 dirFiles(options.dir)
-.then(files => fileProcessor(filesById, options.dir, key, files))
+.then(files => fileProcessor(client.getFiles(), options.dir, key, files))
 .then(tracks => client.start(tracks))
 .then(() => {
     watch.createMonitor(musicDir, (monitor) => {
-        fileWatcher(monitor, client.addTracks, musicDir, key);
+        fileWatcher(monitor, client.getFiles(), client.sendTracks, musicDir, key);
     });
 });

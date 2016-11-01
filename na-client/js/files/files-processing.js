@@ -36,10 +36,7 @@ export function fileWatcher(monitor, sendFileData, musicDir) {
             })
             .subscribe((tracks) => {
                 if (Object.keys(tracks).length > 0) {
-                    sendFileData({
-                        key: key,
-                        tracks: tracks
-                    });
+                    sendFileData(tracks);
                 }
             });
 

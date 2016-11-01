@@ -1,9 +1,19 @@
 import fs from 'fs';
 import Rx from 'rx';
+import Throttle from 'throttle';
 
-export default function(track, trackId, sendFileData, Throttle) {
-    return function(err, results) {
-        const trackStream = fs.createReadStream(track);
+export default class Stream {
+    constructor(stream) {
+        this.stream = stream;
+    }
+
+    streamTrack(track) {
+        this.track = track;
+        probe(track, this.createTrackStream);
+    }
+
+    createTrackStream(err, results) {
+        const trackStream = fs.createReadStream(this.track);
         const bps = (results.format.bit_rate / 10) * 1.2;
         const chunkSize = Math.ceil(bps / 10);
         const throttledStream = new Throttle({bps, chunkSize});
@@ -11,14 +21,18 @@ export default function(track, trackId, sendFileData, Throttle) {
 
         const throttledData = Rx.Observable.fromEvent(throttledStream, 'data')
         .subscribe(data => {
-            sendFileData(data);
+            this.sendTrackData(data);
         });
 
         const throttleEnd = Rx.Observable.fromEvent(throttledStream, 'end')
         .subscribe(() => {
             throttledData.dispose();
             throttleEnd.dispose();
-            sendFileData(trackId);
+            this.sendTrackData(trackId);
         });
-    };
+    }
+
+    sendTrackData(data) {
+        this.stream.write(data);
+    }
 }
