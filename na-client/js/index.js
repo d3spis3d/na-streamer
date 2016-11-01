@@ -3,10 +3,11 @@ import path from 'path';
 import commandLineArgs from 'command-line-args';
 import uuid from 'node-uuid';
 import dir from 'node-dir';
+import watch from 'watch';
 import promisify from 'promisify-node';
 
 import Client from './client/client';
-import { fileProcessor } from './lib/files/files-processing';
+import { fileProcessor, fileWatcher } from './files/files-processing';
 
 const CLIENT_KEYFILE = '.clientkey';
 
@@ -48,11 +49,15 @@ try {
     fs.writeFileSync(keyPath, key);
 }
 
-const processTracks = reduceAndMemoize(filesById, 'id', 'file');
 const dirFiles = promisify(dir.files);
 
 const client = Client(options, key);
 
 dirFiles(options.dir)
-.then(files => processFiles(processTracks, options.dir, key, files))
-.then(tracks => client.start(tracks));
+.then(files => fileProcessor(filesById, options.dir, key, files))
+.then(tracks => client.start(tracks))
+.then(() => {
+    watch.createMonitor(musicDir, (monitor) => {
+        fileWatcher(monitor, client.addTracks, musicDir, key);
+    });
+});

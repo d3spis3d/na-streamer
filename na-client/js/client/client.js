@@ -21,6 +21,7 @@ export default class Client() {
         client.on('open', () => {
             console.log('opened connection');
             this.stream = client.createStream();
+
             const streamTrack = createTrackResponse(tracks, sendFileData, probe);
 
             const streamedData = Rx.Observable.fromEvent(stream, 'data');
@@ -28,14 +29,21 @@ export default class Client() {
             const trackRequests = streamedData.filter(data => typeof data === 'string' || data instanceof String);
             trackRequests.subscribe(streamTrack);
 
-            setupFilesProcessing(tracks, sendFileData, musicDir, key);
+            this.sendTracks(tracks);
         });
 
         client.on('close', this.handleClose);
         client.on('error', this.handleError);
     }
 
-    sendLibraryData(data) {
+    sendTracks(tracks) {
+        this.sendData({
+            key: this.key,
+            tracks: tracks
+        });
+    }
+
+    sendData(data) {
       this.stream.write(data);
     }
 
