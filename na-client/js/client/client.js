@@ -4,7 +4,7 @@ import Rx from 'rx';
 
 import Stream from '../streams/stream';
 
-export default class Client() {
+export default class Client {
 
     constructor(options, key) {
         this.host = options.host;

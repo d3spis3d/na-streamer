@@ -1,7 +1,7 @@
 import {expect} from 'chai';
 import sinon from 'sinon';
 
-import {reduceAndMemoize, createWriteStream} from '../../js/lib/helper';
+import reduceAndMemoize from '../../js/lib/reduce-and-memoize';
 
 describe('reduceAndMemoize', function() {
     let memoizeObj;
@@ -35,28 +35,5 @@ describe('reduceAndMemoize', function() {
         const result = resultFunction(input, reduceFunc, []);
         expect(result).to.eql(expectedOutput);
         expect(memoizeObj).to.eql(expectedMemoizeObj);
-    });
-});
-
-describe('createWriteStream', function() {
-    it('should return a function', function() {
-        const input = {};
-
-        const results = createWriteStream(input);
-
-        expect(results).to.be.a('function');
-    });
-
-    it('should create a function that writes to stream', function() {
-        const stream = {
-            write: function() { }
-        };
-        const spy = sinon.spy(stream, 'write');
-        const inputData = { key: 'value' };
-
-        const func = createWriteStream(stream);
-        func(inputData);
-
-        expect(spy.calledWith(inputData)).to.be.true;
     });
 });

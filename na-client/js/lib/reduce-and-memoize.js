@@ -1,4 +1,4 @@
-export function reduceAndMemoize(memo, memoKey, memoValue) {
+export default function reduceAndMemoize(memo, memoKey, memoValue) {
     return function(array, reduceFunction, initial) {
         return array.reduce(function(previous, current) {
             memo[current[memoKey]] = current[memoValue];
