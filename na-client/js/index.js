@@ -7,7 +7,8 @@ import watch from 'watch';
 import promisify from 'promisify-node';
 
 import Client from './client/client';
-import { fileProcessor, fileWatcher } from './files/files-processing';
+import fileProcessor from './files/file-processor';
+import fileWatcher from './files/file-watcher';
 
 const CLIENT_KEYFILE = '.clientkey';
 

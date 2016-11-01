@@ -2,7 +2,6 @@ import {BinaryClient} from 'binaryjs';
 import probe from 'node-ffprobe';
 import Rx from 'rx';
 
-import setupFilesProcessing from '../files/setup-files-processing';
 import Stream from '../streams/stream';
 
 export default class Client() {
