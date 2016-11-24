@@ -3,24 +3,24 @@ export const RECEIVE_PLAYING = 'RECEIVE_PLAYING';
 export const UPDATE_PLAYING = 'UPDATE_PLAYING';
 
 export function fetchPlaying() {
-    return {
-        type: FETCH_PLAYING
-    };
+  return {
+    type: FETCH_PLAYING,
+  };
 }
 
 export function receivePlaying(playing) {
-    return {
-        type: RECEIVE_PLAYING,
-        playing: playing
-    };
+  return {
+    type: RECEIVE_PLAYING,
+    playing,
+  };
 }
 
 export function updatePlaying() {
-    return function(dispatch) {
-        dispatch(fetchPlaying());
+  return function (dispatch) {
+    dispatch(fetchPlaying());
 
-        return fetch('/api/playing')
+    return fetch('/api/playing')
         .then(response => response.json())
         .then(json => dispatch(receivePlaying(json)));
-    };
+  };
 }
