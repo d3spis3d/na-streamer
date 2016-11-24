@@ -1,14 +1,18 @@
 import React from 'react';
 
 const styles = {
-  container: {
-    flex: 1,
-    display: 'flex',
-    border: '1px solid grey'
-  }
+  flex: 5,
+  display: 'flex',
+  alignContent: 'center',
+  flexDirection: 'column',
+  alignItems: 'center'
 };
 
-export default class NowPlaying extends React.Component {
+const spanStyles = {
+  marginTop: 20
+};
+
+export default class TrackContainer extends React.Component {
   refreshPlaying() {
     this.props.refreshPlaying();
   }
@@ -17,9 +21,8 @@ export default class NowPlaying extends React.Component {
     const song = this.props.playing;
     return (
       <div style={styles}>
-        <span> {song.artist} - {song.title} </span>
+        <span style={spanStyles}> {song.artist} — {song.title} </span>
         <button onClick={() => this.refreshPlaying()}> Update </button>
-        <audio src="/api/stream" autoPlay />
       </div>
     );
   }

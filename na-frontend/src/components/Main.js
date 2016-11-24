@@ -3,15 +3,16 @@ import Sidebar from './Sidebar';
 import ViewContainer from './ViewContainer';
 
 
-const divStyles = {
-  flex: 9,
-  display: 'flex',
+const styles = {
+  display: 'grid',
+  gridTemplateColumns: '1fr 7fr',
+  height: '100vh'
 };
 
 export default class Main extends React.Component {
   render() {
     return (
-      <div style={divStyles}>
+      <div style={styles}>
         <Sidebar />
         <ViewContainer />
       </div>

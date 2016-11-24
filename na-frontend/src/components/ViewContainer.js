@@ -3,11 +3,6 @@ import { connect } from 'react-redux';
 import { updateQueue } from '../actions/actions';
 import Channel from './views/Channel';
 
-const divStyles = {
-  border: '1px solid grey',
-  flex: 8,
-};
-
 class ViewContainer extends React.Component {
   refreshQueue() {
     this.props.dispatch(updateQueue());
@@ -15,7 +10,7 @@ class ViewContainer extends React.Component {
 
   render() {
     return (
-      <div style={divStyles}>
+      <div>
         <Channel queue={this.props.queue} refreshQueue={this.refreshQueue.bind(this)} />
       </div>
     );
